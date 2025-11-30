@@ -2,6 +2,7 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
+import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Settings() {
@@ -35,10 +36,18 @@ export default function Settings() {
 
           <div className="space-y-6">
             <div className="text-center">
-              <img
+              {/* <img
                 src={user?.imageUrl}
                 alt="Profile"
                 className="w-24 h-24 rounded-full mx-auto mb-4 border-4 border-white/10"
+              /> */}
+
+              <Image
+                src={user?.imageUrl || '/default-profile.png'}
+                alt="Profile"
+                width={96}
+                height={96}
+                className="rounded-full mx-auto mb-4 border-4 border-white/10"
               />
               <Link
                 href="/user-profile"

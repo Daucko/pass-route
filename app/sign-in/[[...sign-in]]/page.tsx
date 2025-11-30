@@ -4,10 +4,10 @@
 import { BackgroundBlobs } from '@/components/layout/background-blobs';
 import { SignIn } from '@clerk/nextjs';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 
 export default function SignInPage() {
-  const router = useRouter();
+  // const router = useRouter();
 
   return (
     <>

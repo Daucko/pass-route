@@ -1,3 +1,5 @@
+import Image from 'next/image';
+
 // components/features/ticker.tsx
 export function Ticker() {
   const tickerItems = [
@@ -13,10 +15,12 @@ export function Ticker() {
       <div className="flex animate-scroll">
         {[...tickerItems, ...tickerItems].map((item, index) => (
           <div key={index} className="flex items-center gap-3 px-8 shrink-0">
-            <img
+            <Image
               src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${item.avatar}`}
               alt="User"
-              className="w-6 h-6 rounded-full"
+              width={24}
+              height={24}
+              className="rounded-full"
             />
             <span className="text-sm text-muted-foreground whitespace-nowrap">
               {item.text}

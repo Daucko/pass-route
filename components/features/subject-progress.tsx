@@ -1,6 +1,4 @@
 // components/features/subject-progress.tsx
-import { cn } from '@/lib/utils';
-
 const subjects = [
   { name: 'Mathematics', progress: 75, color: 'neon-blue' },
   { name: 'English', progress: 60, color: 'neon-purple' },

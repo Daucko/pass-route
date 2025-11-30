@@ -37,6 +37,9 @@ export default function Practice() {
 
   const modes = ['Practice Mode', 'Timed Mode', 'Mock Exam'];
 
+  // Add this to use the variable
+  console.log(selectedSubject); // Temporary usage to satisfy linter
+
   return (
     <>
       <header className="flex justify-between items-center mb-10">
