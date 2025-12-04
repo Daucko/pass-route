@@ -1,29 +1,39 @@
-import { cn } from '@/lib/utils'; // components/features/stats-grid.tsx
+// components/features/stats-grid.tsx
+'use client';
+
+import { cn } from '@/lib/utils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faBolt,
+  faCheckDouble,
+  faBullseye,
+  faFire,
+} from '@fortawesome/free-solid-svg-icons';
 
 export function StatsGrid() {
   const stats = [
     {
       value: '1,250',
       label: 'XP Earned',
-      icon: 'fa-solid fa-bolt',
+      icon: faBolt,
       color: 'neon-glow-purple',
     },
     {
       value: '428',
       label: 'Questions Solved',
-      icon: 'fa-solid fa-check-double',
+      icon: faCheckDouble,
       color: 'neon-glow-blue',
     },
     {
       value: '85%',
       label: 'Accuracy',
-      icon: 'fa-solid fa-bullseye',
+      icon: faBullseye,
       color: 'neon-glow-green',
     },
     {
       value: '12 Days',
       label: 'Streak',
-      icon: 'fa-solid fa-fire',
+      icon: faFire,
       color: 'neon-glow-pink',
     },
   ];
@@ -38,7 +48,7 @@ export function StatsGrid() {
               stat.color
             )}
           >
-            <i className={stat.icon} />
+            <FontAwesomeIcon icon={stat.icon} />
           </div>
           <div>
             <h3 className="text-2xl font-bold mb-1">{stat.value}</h3>

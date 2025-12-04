@@ -2,6 +2,8 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faSearch, faBell } from '@fortawesome/free-solid-svg-icons';
 
 interface DashboardHeaderProps {
   userName?: string;
@@ -22,7 +24,7 @@ export function DashboardHeader({ userName }: DashboardHeaderProps) {
       </div>
       <div className="flex items-center gap-5">
         <div className="glass-panel flex items-center gap-3 px-5 py-3 rounded-full w-80">
-          <i className="fa-solid fa-search text-muted-foreground" />
+          <FontAwesomeIcon icon={faSearch} className="text-muted-foreground" />
           <input
             type="text"
             placeholder="Search topics..."
@@ -30,7 +32,7 @@ export function DashboardHeader({ userName }: DashboardHeaderProps) {
           />
         </div>
         <button className="glass-panel w-12 h-12 rounded-full flex items-center justify-center border border-white/10">
-          <i className="fa-solid fa-bell" />
+          <FontAwesomeIcon icon={faBell} />
         </button>
       </div>
     </header>

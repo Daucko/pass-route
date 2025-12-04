@@ -1,12 +1,28 @@
 // components/features/recent-activity.tsx
+'use client';
+
 import { cn } from '@/lib/utils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faCalculator,
+  faAtom,
+  faFlask,
+  faBook,
+  faClock,
+  faGraduationCap,
+  faRotateRight,
+  faPlay,
+  faChartLine,
+  faPlus,
+  faChartSimple,
+} from '@fortawesome/free-solid-svg-icons';
 
 const activities = [
   {
     id: 1,
     type: 'practice',
     subject: 'Mathematics',
-    icon: 'fa-solid fa-calculator',
+    icon: faCalculator,
     iconBg: 'bg-blue-500/20',
     iconColor: 'text-neon-blue',
     title: 'Algebra Practice',
@@ -19,7 +35,7 @@ const activities = [
     id: 2,
     type: 'exam',
     subject: 'Physics',
-    icon: 'fa-solid fa-atom',
+    icon: faAtom,
     iconBg: 'bg-purple-500/20',
     iconColor: 'text-neon-purple',
     title: 'Mock Exam',
@@ -32,7 +48,7 @@ const activities = [
     id: 3,
     type: 'revision',
     subject: 'Chemistry',
-    icon: 'fa-solid fa-flask',
+    icon: faFlask,
     iconBg: 'bg-green-500/20',
     iconColor: 'text-neon-green',
     title: 'Organic Chemistry',
@@ -45,7 +61,7 @@ const activities = [
     id: 4,
     type: 'quiz',
     subject: 'English',
-    icon: 'fa-solid fa-book',
+    icon: faBook,
     iconBg: 'bg-pink-500/20',
     iconColor: 'text-neon-pink',
     title: 'Grammar Quiz',
@@ -80,7 +96,7 @@ export function RecentActivity() {
                 activity.iconColor
               )}
             >
-              <i className={activity.icon} />
+              <FontAwesomeIcon icon={activity.icon} />
             </div>
 
             {/* Activity Details */}
@@ -100,11 +116,11 @@ export function RecentActivity() {
               </p>
               <div className="flex items-center gap-4 text-xs text-muted-foreground">
                 <span className="flex items-center gap-1">
-                  <i className="fa-solid fa-clock" />
+                  <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
                   {activity.time}
                 </span>
                 <span className="flex items-center gap-1">
-                  <i className="fa-solid fa-graduation-cap" />
+                  <FontAwesomeIcon icon={faGraduationCap} className="w-3 h-3" />
                   {activity.subject}
                 </span>
               </div>
@@ -124,15 +140,18 @@ export function RecentActivity() {
               <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 {activity.status === 'completed' ? (
                   <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors duration-200">
-                    <i className="fa-solid fa-rotate-right text-xs" />
+                    <FontAwesomeIcon icon={faRotateRight} className="text-xs" />
                   </button>
                 ) : (
                   <button className="w-8 h-8 rounded-lg bg-neon-blue/20 hover:bg-neon-blue/30 border border-neon-blue/30 flex items-center justify-center transition-colors duration-200">
-                    <i className="fa-solid fa-play text-xs text-neon-blue" />
+                    <FontAwesomeIcon
+                      icon={faPlay}
+                      className="text-xs text-neon-blue"
+                    />
                   </button>
                 )}
                 <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors duration-200">
-                  <i className="fa-solid fa-chart-line text-xs" />
+                  <FontAwesomeIcon icon={faChartLine} className="text-xs" />
                 </button>
               </div>
             </div>
@@ -165,11 +184,11 @@ export function RecentActivity() {
       {/* Quick Actions */}
       <div className="mt-6 flex gap-3">
         <button className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
-          <i className="fa-solid fa-plus" />
+          <FontAwesomeIcon icon={faPlus} />
           New Session
         </button>
         <button className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
-          <i className="fa-solid fa-chart-simple" />
+          <FontAwesomeIcon icon={faChartSimple} />
           View Analytics
         </button>
       </div>
