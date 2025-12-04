@@ -3,29 +3,39 @@
 
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import {
+  faSearch,
+  faBell,
+  faCalculator,
+  faBook,
+  faAtom,
+  faFlask,
+} from '@fortawesome/free-solid-svg-icons';
+import { QuestionView } from '@/components/features/question-view';
 
 const subjects = [
   {
     name: 'Mathematics',
-    icon: 'fa-solid fa-calculator',
+    icon: faCalculator,
     topics: '12 Topics • 500+ Questions',
     color: 'neon-glow-blue',
   },
   {
     name: 'English',
-    icon: 'fa-solid fa-book',
+    icon: faBook,
     topics: '8 Topics • 400+ Questions',
     color: 'neon-glow-purple',
   },
   {
     name: 'Physics',
-    icon: 'fa-solid fa-atom',
+    icon: faAtom,
     topics: '14 Topics • 550+ Questions',
     color: 'neon-glow-green',
   },
   {
     name: 'Chemistry',
-    icon: 'fa-solid fa-flask',
+    icon: faFlask,
     topics: '13 Topics • 520+ Questions',
     color: 'neon-glow-pink',
   },
@@ -34,11 +44,24 @@ const subjects = [
 export default function Practice() {
   const [activeMode, setActiveMode] = useState('Practice Mode');
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
+  const [isQuestionViewActive, setIsQuestionViewActive] = useState(false);
 
   const modes = ['Practice Mode', 'Timed Mode', 'Mock Exam'];
 
-  // Add this to use the variable
-  console.log(selectedSubject); // Temporary usage to satisfy linter
+  const handleSubjectClick = (subjectName: string) => {
+    setSelectedSubject(subjectName);
+    setIsQuestionViewActive(true);
+  };
+
+  const handleEndSession = () => {
+    setIsQuestionViewActive(false);
+    setSelectedSubject(null);
+    // You can add additional logic here like saving session results
+  };
+
+  const handleCloseQuestionView = () => {
+    setIsQuestionViewActive(false);
+  };
 
   return (
     <>
@@ -51,7 +74,10 @@ export default function Practice() {
         </div>
         <div className="flex items-center gap-5">
           <div className="glass-panel flex items-center gap-3 px-5 py-3 rounded-full w-80">
-            <i className="fa-solid fa-search text-muted-foreground" />
+            <FontAwesomeIcon
+              icon={faSearch}
+              className="text-muted-foreground"
+            />
             <input
               type="text"
               placeholder="Search topics..."
@@ -59,7 +85,7 @@ export default function Practice() {
             />
           </div>
           <button className="glass-panel w-12 h-12 rounded-full flex items-center justify-center border border-white/10">
-            <i className="fa-solid fa-bell" />
+            <FontAwesomeIcon icon={faBell} />
           </button>
         </div>
       </header>
@@ -96,10 +122,10 @@ export default function Practice() {
             <div
               key={subject.name}
               className="glass-card text-center p-8 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-              onClick={() => setSelectedSubject(subject.name)}
+              onClick={() => handleSubjectClick(subject.name)}
             >
               <div className={cn('text-4xl mb-6', subject.color)}>
-                <i className={subject.icon} />
+                <FontAwesomeIcon icon={subject.icon} />
               </div>
               <h3 className="text-xl font-semibold mb-3">{subject.name}</h3>
               <p className="text-muted-foreground mb-6">{subject.topics}</p>
@@ -110,6 +136,14 @@ export default function Practice() {
           ))}
         </div>
       </div>
+
+      {/* Question View Modal */}
+      <QuestionView
+        selectedSubject={selectedSubject}
+        isActive={isQuestionViewActive}
+        onEndSession={handleEndSession}
+        onClose={handleCloseQuestionView}
+      />
     </>
   );
 }
