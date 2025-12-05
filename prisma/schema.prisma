@@ -9,6 +9,48 @@ datasource db {
   provider = "postgresql"
 }
 
+model User {
+  id              String    @id @default(cuid())
+  clerkId         String    @unique
+  email           String    @unique
+  username        String?
+  
+  // XP & Progress
+  totalXP         Int       @default(0)
+  level           Int       @default(1)
+  currentStreak   Int       @default(0)
+  lastActiveDate  DateTime?
+  
+  // Stats
+  questionsAnswered Int     @default(0)
+  correctAnswers    Int     @default(0)
+  
+  sessions        Session[]
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+  
+  @@map("users")
+}
+
+model Session {
+  id              String   @id @default(cuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  subject         String
+  mode            String   // 'practice', 'timed', 'mock'
+  questionsCount  Int
+  correctCount    Int
+  incorrectCount  Int
+  xpEarned        Int
+  timeSpent       Int      // in seconds
+  
+  createdAt       DateTime @default(now())
+  
+  @@index([userId])
+  @@map("sessions")
+}
+
 model Question {
   id            String   @id @default(cuid())
   subject       String

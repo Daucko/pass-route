@@ -15,6 +15,7 @@ import {
   faCheck,
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
+import { SessionSummary } from './session-summary';
 
 interface Question {
   id: number;
@@ -50,6 +51,9 @@ export function QuestionView({
   const [time, setTime] = useState(0);
   const [isLoading, setIsLoading] = useState(false);
   const [questions, setQuestions] = useState<Question[]>([]);
+  const [answers, setAnswers] = useState<Record<number, { selected: string; correct: boolean }>>({});
+  const [showSummary, setShowSummary] = useState(false);
+  const [sessionResult, setSessionResult] = useState<any>(null);
 
   useEffect(() => {
     if (selectedSubject && isActive) {
@@ -92,7 +96,15 @@ export function QuestionView({
   const totalQuestions = questions.length;
 
   const handleOptionSelect = (optionId: string) => {
+    if (answers[currentQuestionIndex]) return; // Already answered
+
     setSelectedOption(optionId);
+    const isCorrect = currentQuestion.options.find(opt => opt.id === optionId)?.correct || false;
+
+    setAnswers(prev => ({
+      ...prev,
+      [currentQuestionIndex]: { selected: optionId, correct: isCorrect },
+    }));
   };
 
   const handleNextQuestion = () => {
@@ -105,8 +117,59 @@ export function QuestionView({
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
-      setSelectedOption(null);
+      const prevAnswer = answers[currentQuestionIndex - 1];
+      setSelectedOption(prevAnswer?.selected || null);
     }
+  };
+
+  const handleEndSession = async () => {
+    const correctCount = Object.values(answers).filter(a => a.correct).length;
+    const incorrectCount = Object.values(answers).filter(a => !a.correct).length;
+
+    try {
+      const response = await fetch('/api/sessions', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          subject: selectedSubject,
+          mode: 'Practice Mode',
+          questionsCount: Object.keys(answers).length,
+          correctCount,
+          incorrectCount,
+          timeSpent: time,
+        }),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setSessionResult({
+          subject: selectedSubject,
+          questionsCount: Object.keys(answers).length,
+          correctCount,
+          incorrectCount,
+          timeSpent: time,
+          xpEarned: data.xpEarned,
+          leveledUp: data.leveledUp,
+          newLevel: data.newLevel,
+          streakIncremented: data.streakIncremented,
+          streakBonus: data.streakBonus,
+        });
+        setShowSummary(true);
+      } else {
+        console.error('Failed to save session');
+        onEndSession();
+      }
+    } catch (error) {
+      console.error('Error saving session:', error);
+      onEndSession();
+    }
+  };
+
+  const handleCloseSummary = () => {
+    setShowSummary(false);
+    setSessionResult(null);
+    setAnswers({});
+    onEndSession();
   };
 
   const formatTime = (seconds: number) => {
@@ -234,7 +297,7 @@ export function QuestionView({
         {/* Footer Actions - Fixed height */}
         <div className="p-6 border-t border-white/10 flex justify-between items-center shrink-0">
           <button
-            onClick={onEndSession}
+            onClick={handleEndSession}
             className="px-6 py-3 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-full font-semibold transition-colors duration-200"
           >
             End Session
@@ -273,6 +336,15 @@ export function QuestionView({
           </div>
         </div>
       </div>
+
+      {/* Session Summary Modal */}
+      {showSummary && sessionResult && (
+        <SessionSummary
+          isOpen={showSummary}
+          onClose={handleCloseSummary}
+          sessionData={sessionResult}
+        />
+      )}
     </div>
   );
 }
