@@ -10,7 +10,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 import { LevelBadge } from '@/components/features/level-badge';
 import { XPProgressBar } from '@/components/features/xp-progress-bar';
-import { getXPForNextLevel } from '@/lib/xp-utils';
 
 const navigation = [
   { name: 'Home', href: '/', icon: 'fa-solid fa-home' },
@@ -24,11 +23,24 @@ const navigation = [
   { name: 'Settings', href: '/dashboard/settings', icon: 'fa-solid fa-gear' },
 ];
 
+interface UserStats {
+  user: {
+    totalXP: number;
+  };
+  levelInfo: {
+    currentLevel: number;
+    nextLevel: number;
+    xpForCurrentLevel: number;
+    xpForNextLevel: number;
+    xpNeeded: number;
+  };
+}
+
 export function Sidebar() {
   const pathname = usePathname();
   const { user, isSignedIn } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [userStats, setUserStats] = useState<any>(null);
+  const [userStats, setUserStats] = useState<UserStats | null>(null);
 
   useEffect(() => {
     const fetchUserStats = async () => {
