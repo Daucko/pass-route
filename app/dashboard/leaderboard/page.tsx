@@ -1,4 +1,5 @@
 // app/leaderboard/page.tsx
+import Image from 'next/image';
 import { BackgroundBlobs } from '@/components/layout/background-blobs';
 import { cn } from '@/lib/utils';
 
@@ -63,16 +64,18 @@ export default function Leaderboard() {
               )}
 
               <div className="relative mb-4">
-                <img
+                <Image
                   src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.avatar}`}
                   alt={user.name}
+                  width={80}
+                  height={80}
                   className={cn(
                     'w-20 h-20 rounded-full border-4',
                     user.type === 'gold'
                       ? 'border-yellow-400 shadow-[0_0_20px_rgba(255,215,0,0.3)]'
                       : user.type === 'silver'
-                      ? 'border-gray-400'
-                      : 'border-amber-700'
+                        ? 'border-gray-400'
+                        : 'border-amber-700'
                   )}
                 />
                 <div
@@ -81,8 +84,8 @@ export default function Leaderboard() {
                     user.type === 'gold'
                       ? 'bg-yellow-400'
                       : user.type === 'silver'
-                      ? 'bg-gray-400'
-                      : 'bg-amber-700'
+                        ? 'bg-gray-400'
+                        : 'bg-amber-700'
                   )}
                 >
                   {user.rank}
@@ -100,8 +103,8 @@ export default function Leaderboard() {
                   user.type === 'gold'
                     ? 'h-36 bg-gradient-to-b from-yellow-400/10 to-yellow-400/02 border-t-yellow-400'
                     : user.type === 'silver'
-                    ? 'h-24 bg-gradient-to-b from-gray-400/10 to-gray-400/02 border-t-gray-400'
-                    : 'h-20 bg-gradient-to-b from-amber-700/10 to-amber-700/02 border-t-amber-700'
+                      ? 'h-24 bg-gradient-to-b from-gray-400/10 to-gray-400/02 border-t-gray-400'
+                      : 'h-20 bg-gradient-to-b from-amber-700/10 to-amber-700/02 border-t-amber-700'
                 )}
               />
             </div>
@@ -127,9 +130,11 @@ export default function Leaderboard() {
                   {user.rank}
                 </span>
                 <div className="flex items-center gap-4">
-                  <img
+                  <Image
                     src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${user.avatar}`}
                     alt={user.name}
+                    width={40}
+                    height={40}
                     className="w-10 h-10 rounded-full"
                   />
                   <span>{user.name}</span>
