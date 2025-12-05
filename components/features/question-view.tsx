@@ -31,6 +31,19 @@ interface QuestionViewProps {
   onClose: () => void;
 }
 
+interface SessionResult {
+  subject: string;
+  questionsCount: number;
+  correctCount: number;
+  incorrectCount: number;
+  timeSpent: number;
+  xpEarned: number;
+  leveledUp: boolean;
+  newLevel?: number;
+  streakIncremented: boolean;
+  streakBonus?: number;
+}
+
 // Sample questions removed - now fetching from API
 
 const subjectIcons = {
@@ -53,7 +66,7 @@ export function QuestionView({
   const [questions, setQuestions] = useState<Question[]>([]);
   const [answers, setAnswers] = useState<Record<number, { selected: string; correct: boolean }>>({});
   const [showSummary, setShowSummary] = useState(false);
-  const [sessionResult, setSessionResult] = useState<any>(null);
+  const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
 
   useEffect(() => {
     if (selectedSubject && isActive) {
@@ -143,7 +156,7 @@ export function QuestionView({
       if (response.ok) {
         const data = await response.json();
         setSessionResult({
-          subject: selectedSubject,
+          subject: selectedSubject!,
           questionsCount: Object.keys(answers).length,
           correctCount,
           incorrectCount,
