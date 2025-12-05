@@ -1,9 +1,7 @@
 // scripts/seed-questions.ts
 // Script to fetch questions from QBoard API and seed the database
 
-import { PrismaClient } from '../app/generated-prisma-client';
-
-const prisma = new PrismaClient();
+import { prisma } from '../lib/prisma';
 
 const QBOARD_API_BASE = 'https://questions.aloc.com.ng/api/v2';
 const API_TOKEN = process.env.QBOARD_API_TOKEN;
