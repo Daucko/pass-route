@@ -173,9 +173,10 @@ export function QuestionView({
             </div>
           ) : currentQuestion ? (
             <>
-              <p className="text-xl mb-8 leading-relaxed">
-                {currentQuestion.text}
-              </p>
+              <p
+                className="text-xl mb-8 leading-relaxed"
+                dangerouslySetInnerHTML={{ __html: currentQuestion.text }}
+              />
 
               <div className="space-y-3 mb-8">
                 {currentQuestion.options.map((option) => (
@@ -203,7 +204,10 @@ export function QuestionView({
                     >
                       {option.id.toUpperCase()}
                     </span>
-                    <span className="flex-1">{option.text}</span>
+                    <span
+                      className="flex-1"
+                      dangerouslySetInnerHTML={{ __html: option.text }}
+                    />
                     {selectedOption === option.id && option.correct && (
                       <span className="text-neon-green font-bold flex items-center gap-2">
                         <FontAwesomeIcon icon={faCheck} /> Correct!
