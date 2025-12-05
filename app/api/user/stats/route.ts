@@ -1,12 +1,12 @@
 // app/api/user/stats/route.ts
 // Get user stats (XP, level, streak, etc.)
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { auth } from '@clerk/nextjs/server';
 import { prisma } from '@/lib/prisma';
 import { getXPForNextLevel } from '@/lib/xp-utils';
 
-export async function GET(_request: NextRequest) {
+export async function GET() {
     try {
         const { userId } = await auth();
 
