@@ -1,13 +1,16 @@
 // components/layout/sidebar.tsx
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { UserButton, useUser } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { LevelBadge } from '@/components/features/level-badge';
+import { XPProgressBar } from '@/components/features/xp-progress-bar';
+import { getXPForNextLevel } from '@/lib/xp-utils';
 
 const navigation = [
   { name: 'Home', href: '/', icon: 'fa-solid fa-home' },
@@ -23,8 +26,27 @@ const navigation = [
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user } = useUser();
+  const { user, isSignedIn } = useUser();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userStats, setUserStats] = useState<any>(null);
+
+  useEffect(() => {
+    const fetchUserStats = async () => {
+      if (isSignedIn) {
+        try {
+          const response = await fetch('/api/user/stats');
+          if (response.ok) {
+            const data = await response.json();
+            setUserStats(data);
+          }
+        } catch (error) {
+          console.error('Failed to fetch user stats:', error);
+        }
+      }
+    };
+
+    fetchUserStats();
+  }, [isSignedIn]);
 
   return (
     <>
@@ -87,7 +109,33 @@ export function Sidebar() {
           </nav>
         </div>
 
-        <div className="glass-panel rounded-2xl p-4 border border-white/10 mt-8">
+        {/* XP Progress Section */}
+        {userStats && (
+          <div className="glass-panel rounded-2xl p-4 border border-white/10 mb-4">
+            <div className="flex items-center gap-3 mb-3">
+              <LevelBadge level={userStats.levelInfo.currentLevel} size="md" />
+              <div>
+                <div className="text-sm font-semibold">Level {userStats.levelInfo.currentLevel}</div>
+                <div className="text-xs text-muted-foreground">
+                  {userStats.user.totalXP} XP
+                </div>
+              </div>
+            </div>
+            <XPProgressBar
+              currentXP={userStats.user.totalXP}
+              xpForCurrentLevel={userStats.levelInfo.xpForCurrentLevel}
+              xpForNextLevel={userStats.levelInfo.xpForNextLevel}
+              currentLevel={userStats.levelInfo.currentLevel}
+              nextLevel={userStats.levelInfo.nextLevel}
+              showLabel={false}
+            />
+            <div className="mt-2 text-xs text-muted-foreground text-center">
+              {userStats.levelInfo.xpNeeded} XP to Level {userStats.levelInfo.nextLevel}
+            </div>
+          </div>
+        )}
+
+        <div className="glass-panel rounded-2xl p-4 border border-white/10">
           <div className="flex items-center gap-4">
             <UserButton
               appearance={{
