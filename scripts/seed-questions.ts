@@ -1,6 +1,7 @@
 // scripts/seed-questions.ts
 // Script to fetch questions from QBoard API and seed the database
 
+import 'dotenv/config';
 import { prisma } from '../lib/prisma';
 
 const QBOARD_API_BASE = 'https://questions.aloc.com.ng/api/v2';
