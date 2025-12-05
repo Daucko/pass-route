@@ -3,6 +3,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
+import { Prisma } from '@prisma/client';
 import { transformQuestion } from '@/types/question';
 
 export async function GET(request: NextRequest) {
@@ -25,7 +26,7 @@ export async function GET(request: NextRequest) {
         const limit = limitParam ? Math.min(parseInt(limitParam), 50) : 10;
 
         // Build where clause
-        const where: any = {
+        const where: Prisma.QuestionWhereInput = {
             subject: subject.toLowerCase(),
         };
 
