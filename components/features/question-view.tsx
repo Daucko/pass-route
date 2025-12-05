@@ -30,71 +30,7 @@ interface QuestionViewProps {
   onClose: () => void;
 }
 
-const sampleQuestions: Record<string, Question[]> = {
-  Mathematics: [
-    {
-      id: 1,
-      subject: 'Mathematics',
-      text: 'What is the derivative of f(x) = 3x² + 2x - 5?',
-      options: [
-        { id: 'a', text: '6x + 2', correct: true },
-        { id: 'b', text: '3x + 2', correct: false },
-        { id: 'c', text: '6x - 5', correct: false },
-        { id: 'd', text: '3x² + 2', correct: false },
-      ],
-    },
-    {
-      id: 2,
-      subject: 'Mathematics',
-      text: 'If a circle has a radius of 7cm, what is its area? (π = 22/7)',
-      options: [
-        { id: 'a', text: '44 cm²', correct: false },
-        { id: 'b', text: '154 cm²', correct: true },
-        { id: 'c', text: '49 cm²', correct: false },
-        { id: 'd', text: '308 cm²', correct: false },
-      ],
-    },
-  ],
-  English: [
-    {
-      id: 1,
-      subject: 'English',
-      text: 'Choose the correct synonym for "Benevolent"',
-      options: [
-        { id: 'a', text: 'Kind', correct: true },
-        { id: 'b', text: 'Cruel', correct: false },
-        { id: 'c', text: 'Selfish', correct: false },
-        { id: 'd', text: 'Ignorant', correct: false },
-      ],
-    },
-  ],
-  Physics: [
-    {
-      id: 1,
-      subject: 'Physics',
-      text: 'Which of the following is NOT a vector quantity?',
-      options: [
-        { id: 'a', text: 'Velocity', correct: false },
-        { id: 'b', text: 'Force', correct: false },
-        { id: 'c', text: 'Speed', correct: true },
-        { id: 'd', text: 'Acceleration', correct: false },
-      ],
-    },
-  ],
-  Chemistry: [
-    {
-      id: 1,
-      subject: 'Chemistry',
-      text: 'What is the atomic number of Carbon?',
-      options: [
-        { id: 'a', text: '6', correct: true },
-        { id: 'b', text: '8', correct: false },
-        { id: 'c', text: '12', correct: false },
-        { id: 'd', text: '14', correct: false },
-      ],
-    },
-  ],
-};
+// Sample questions removed - now fetching from API
 
 const subjectIcons = {
   Mathematics: faCalculator,
@@ -118,15 +54,27 @@ export function QuestionView({
   useEffect(() => {
     if (selectedSubject && isActive) {
       setIsLoading(true);
-      // Simulate API call
-      setTimeout(() => {
-        const subjectQuestions = sampleQuestions[selectedSubject] || [];
-        setQuestions(subjectQuestions);
-        setCurrentQuestionIndex(0);
-        setSelectedOption(null);
-        setTime(0);
-        setIsLoading(false);
-      }, 500);
+
+      // Fetch questions from local API
+      fetch(`/api/questions?subject=${selectedSubject.toLowerCase()}&limit=20&random=true`)
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Failed to fetch questions');
+          }
+          return response.json();
+        })
+        .then(data => {
+          setQuestions(data.questions || []);
+          setCurrentQuestionIndex(0);
+          setSelectedOption(null);
+          setTime(0);
+          setIsLoading(false);
+        })
+        .catch(error => {
+          console.error('Error fetching questions:', error);
+          setQuestions([]);
+          setIsLoading(false);
+        });
     }
   }, [selectedSubject, isActive]);
 

@@ -1,0 +1,30 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../app/generated-prisma-client"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model Question {
+  id            String   @id @default(cuid())
+  subject       String
+  questionText  String   @map("question_text")
+  optionA       String   @map("option_a")
+  optionB       String   @map("option_b")
+  optionC       String   @map("option_c")
+  optionD       String   @map("option_d")
+  correctOption String   @map("correct_option") // 'a', 'b', 'c', or 'd'
+  year          Int?
+  examType      String?  @map("exam_type") // 'utme', 'wassce', 'post-utme'
+  createdAt     DateTime @default(now()) @map("created_at")
+  
+  @@index([subject])
+  @@index([examType])
+  @@index([year])
+  @@map("questions")
+}

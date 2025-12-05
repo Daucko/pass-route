@@ -6,7 +6,11 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "clerk": "clerk"
+    "clerk": "clerk",
+    "db:generate": "prisma generate",
+    "db:push": "prisma db push",
+    "db:studio": "prisma studio",
+    "db:seed": "tsx scripts/seed-questions.ts"
   },
   "dependencies": {
     "@clerk/nextjs": "^5.7.5",
@@ -15,13 +19,17 @@
     "@fortawesome/free-regular-svg-icons": "^7.1.0",
     "@fortawesome/free-solid-svg-icons": "^7.1.0",
     "@fortawesome/react-fontawesome": "^3.1.1",
+    "@prisma/client": "^7.1.0",
+    "@prisma/extension-accelerate": "^1.2.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "lucide-react": "^0.468.0",
     "next": "^15.0.5",
+    "prisma": "^7.1.0",
     "react": "18.3.1",
     "react-dom": "18.3.1",
-    "tailwind-merge": "^2.6.0"
+    "tailwind-merge": "^2.6.0",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@types/node": "^20.17.9",
