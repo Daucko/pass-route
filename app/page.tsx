@@ -1,6 +1,7 @@
 // app/page.tsx
 'use client';
 
+import Image from 'next/image';
 import { BackgroundBlobs } from '@/components/layout/background-blobs';
 import { Navbar } from '@/components/layout/navbar';
 import { CountdownTimer } from '@/components/features/countdown-timer';
@@ -46,33 +47,39 @@ export default function Home() {
 
             <div className="mt-16 flex flex-col items-center gap-4">
               <div className="flex justify-center -space-x-4">
-                <img
+                <Image
                   src="https://api.dicebear.com/7.x/avataaars/svg?seed=1"
                   alt="User"
+                  width={40}
+                  height={40}
                   className="w-10 h-10 rounded-full border-2 border-background"
                 />
-                <img
+                <Image
                   src="https://api.dicebear.com/7.x/avataaars/svg?seed=2"
                   alt="User"
+                  width={40}
+                  height={40}
                   className="w-10 h-10 rounded-full border-2 border-background"
                 />
-                <img
+                <Image
                   src="https://api.dicebear.com/7.x/avataaars/svg?seed=3"
                   alt="User"
+                  width={40}
+                  height={40}
                   className="w-10 h-10 rounded-full border-2 border-background"
                 />
               </div>
-              <span className="text-sm text-muted-foreground">
-                Join 50,000+ Students
-              </span>
             </div>
+            <span className="text-sm text-muted-foreground">
+              Join 50,000+ Students
+            </span>
           </div>
         </section>
 
         <Ticker />
         <FeaturesGrid />
         <QuizDemo />
-      </main>
+      </main >
 
       <Footer />
     </>
