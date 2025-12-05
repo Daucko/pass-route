@@ -21,10 +21,9 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
-    // Optional: if you want to allow any image from any domain (not recommended for production)
-    // dangerouslyAllowSVG: true,
-    // contentDispositionType: 'attachment',
-    // contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
+    // Enable SVG support for dicebear avatars
+    dangerouslyAllowSVG: true,
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
 };
 
