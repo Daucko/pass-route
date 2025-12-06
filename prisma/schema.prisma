@@ -62,6 +62,7 @@ model Question {
   correctOption String   @map("correct_option") // 'a', 'b', 'c', or 'd'
   year          Int?
   examType      String?  @map("exam_type") // 'utme', 'wassce', 'post-utme'
+  explanation   String?  @map("explanation") @db.Text
   createdAt     DateTime @default(now()) @map("created_at")
   
   @@index([subject])

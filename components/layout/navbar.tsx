@@ -14,7 +14,7 @@ export function Navbar() {
 
   return (
     <>
-      <nav className="fixed top-5 left-1/2 -translate-x-1/2 w-[90%] max-w-7xl z-50 glass-panel rounded-full px-4 md:px-8 py-[3px] shadow-lg">
+      <nav className="fixed top-5 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%] max-w-7xl z-50 glass-panel rounded-full px-4 md:px-8 py-[3px] shadow-lg">
         <div className="flex items-center justify-between">
           <Link href="/">
             <Image

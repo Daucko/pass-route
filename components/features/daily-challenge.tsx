@@ -4,7 +4,11 @@
 import { useState } from 'react';
 import { cn } from '@/lib/utils';
 
-export function DailyChallenge() {
+interface DailyChallengeProps {
+  streak?: number;
+}
+
+export function DailyChallenge({ streak = 0 }: DailyChallengeProps) {
   const [isCompleted, setIsCompleted] = useState(false);
 
   const challenge = {
@@ -78,7 +82,7 @@ export function DailyChallenge() {
             <div className="text-xs text-muted-foreground">Success Rate</div>
           </div>
           <div className="bg-white/5 rounded-lg p-3">
-            <div className="text-2xl font-bold text-neon-purple mb-1">7</div>
+            <div className="text-2xl font-bold text-neon-purple mb-1">{streak}</div>
             <div className="text-xs text-muted-foreground">Streak</div>
           </div>
         </div>
@@ -127,21 +131,24 @@ export function DailyChallenge() {
       <div className="mt-6 pt-6 border-t border-white/10">
         <div className="flex items-center justify-between text-sm">
           <span className="text-muted-foreground">Weekly Progress</span>
-          <span className="text-neon-green font-semibold">5/7 days</span>
+          <span className="text-neon-green font-semibold">{streak % 7}/7 days</span>
         </div>
         <div className="flex gap-1 mt-2">
-          {[true, true, true, true, true, false, false].map(
-            (completed, index) => (
-              <div
-                key={index}
-                className={cn(
-                  'flex-1 h-2 rounded-full transition-all duration-300',
-                  completed
-                    ? 'bg-gradient-to-r from-neon-green to-emerald-400'
-                    : 'bg-white/10'
-                )}
-              />
-            )
+          {Array(7).fill(0).map(
+            (_, index) => {
+              const completed = index < (streak % 7);
+              return (
+                <div
+                  key={index}
+                  className={cn(
+                    'flex-1 h-2 rounded-full transition-all duration-300',
+                    completed
+                      ? 'bg-gradient-to-r from-neon-green to-emerald-400'
+                      : 'bg-white/10'
+                  )}
+                />
+              )
+            }
           )}
         </div>
       </div>

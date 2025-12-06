@@ -77,9 +77,18 @@ export function FeaturesGrid() {
 
   return (
     <section id="features" className="mb-20">
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5">
         {features.map((feature, index) => (
-          <div key={index} className={cn('glass-card', feature.gridClass)}>
+          <div
+            key={index}
+            className={cn(
+              'glass-card p-6 flex flex-col',
+              // Adjust spans for responsiveness:
+              // Mobile: all col-span-1 default (unless overridden specifically if needed, but easier to keep stacks)
+              // Desktop (lg): use the original logical spans
+              feature.gridClass === 'col-span-2' ? 'lg:col-span-2' : 'lg:col-span-1'
+            )}
+          >
             <div className="flex justify-between items-start mb-4">
               <h3 className="text-xl font-semibold">{feature.title}</h3>
               <FontAwesomeIcon
@@ -88,7 +97,7 @@ export function FeaturesGrid() {
               />
             </div>
 
-            <p className="text-muted-foreground mb-4">{feature.description}</p>
+            <p className="text-muted-foreground mb-4 flex-grow">{feature.description}</p>
 
             {feature.progress && (
               <div className="mt-5">
