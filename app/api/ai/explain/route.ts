@@ -16,11 +16,14 @@ export async function POST(request: NextRequest) {
         // 1. Check if explanation already exists (Cache Hit)
         const existingQuestion = await prisma.question.findUnique({
             where: { id: questionId },
-            select: { explanation: true },
+            select: { explanation: true, explanationImage: true },
         });
 
         if (existingQuestion?.explanation) {
-            return NextResponse.json({ explanation: existingQuestion.explanation });
+            return NextResponse.json({
+                explanation: existingQuestion.explanation,
+                explanationImage: existingQuestion.explanationImage
+            });
         }
 
         // 2. Mock AI Generation (Simulate Latency)
@@ -39,13 +42,25 @@ export async function POST(request: NextRequest) {
       Always remember to check for the fundamental properties before ruling out an option. This is a classic example often tested in exams.
     `;
 
+        // Generate clean prompt for Pollinations (remove HTML/markdown)
+        const cleanQuestionText = questionText.replace(/<[^>]*>/g, '').substring(0, 100);
+        const imagePrompt = `Educational diagram explaining ${cleanQuestionText}, scientific style, clear label, white background`;
+        const encodedPrompt = encodeURIComponent(imagePrompt);
+        const mockImage = `https://image.pollinations.ai/prompt/${encodedPrompt}`;
+
         // 3. Save to Database (Cache for next user)
         await prisma.question.update({
             where: { id: questionId },
-            data: { explanation: mockExplanation },
+            data: {
+                explanation: mockExplanation,
+                explanationImage: mockImage
+            },
         });
 
-        return NextResponse.json({ explanation: mockExplanation });
+        return NextResponse.json({
+            explanation: mockExplanation,
+            explanationImage: mockImage
+        });
     } catch (error) {
         console.error('Error generating explanation:', error);
         return NextResponse.json(

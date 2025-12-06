@@ -8,6 +8,7 @@ export interface Question {
   year?: number;
   examType?: string;
   explanation?: string;
+  explanationImage?: string;
 }
 
 export interface QuestionOption {
@@ -30,6 +31,7 @@ export interface DBQuestion {
   examType: string | null;
   createdAt: Date;
   explanation?: string | null;
+  explanationImage?: string | null;
 }
 
 // Transform database question to frontend format
@@ -63,6 +65,7 @@ export function transformQuestion(dbQuestion: DBQuestion): Question {
     year: dbQuestion.year ?? undefined,
     examType: dbQuestion.examType ?? undefined,
     explanation: dbQuestion.explanation ?? undefined,
+    explanationImage: dbQuestion.explanationImage ?? undefined,
   };
 }
 
