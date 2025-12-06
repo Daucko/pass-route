@@ -22,7 +22,6 @@ export async function GET() {
             include: {
                 sessions: {
                     orderBy: { createdAt: 'desc' },
-                    take: 10,
                 },
             },
         });
@@ -42,6 +41,24 @@ export async function GET() {
             ? Math.round((user.correctAnswers / user.questionsAnswered) * 100)
             : 0;
 
+        // Calculate subject mastery
+        const subjectStats: Record<string, { total: number; correct: number }> = {};
+
+        user.sessions.forEach(session => {
+            if (!subjectStats[session.subject]) {
+                subjectStats[session.subject] = { total: 0, correct: 0 };
+            }
+            subjectStats[session.subject].total += session.questionsCount;
+            subjectStats[session.subject].correct += session.correctCount;
+        });
+
+        const subjectMastery = Object.entries(subjectStats).map(([name, stats]) => ({
+            name,
+            progress: Math.round((stats.correct / stats.total) * 100),
+            // Assign colors based on subject name or rotate
+            color: getSubjectColor(name),
+        }));
+
         return NextResponse.json({
             user: {
                 id: user.id,
@@ -56,7 +73,8 @@ export async function GET() {
                 accuracy,
             },
             levelInfo,
-            recentSessions: user.sessions,
+            recentSessions: user.sessions.slice(0, 10), // Return only recent 10 sessions
+            subjectMastery,
         });
     } catch (error) {
         console.error('Error fetching user stats:', error);
@@ -65,4 +83,15 @@ export async function GET() {
             { status: 500 }
         );
     }
+}
+
+function getSubjectColor(subject: string): string {
+    const lower = subject.toLowerCase();
+    if (lower.includes('math')) return 'neon-blue';
+    if (lower.includes('english')) return 'neon-purple';
+    if (lower.includes('physics')) return 'neon-green';
+    if (lower.includes('chem')) return 'neon-pink';
+    if (lower.includes('bio')) return 'neon-yellow';
+
+    return 'neon-blue';
 }

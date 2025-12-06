@@ -10,28 +10,37 @@ import {
   faFire,
 } from '@fortawesome/free-solid-svg-icons';
 
-export function StatsGrid() {
-  const stats = [
+interface StatsGridProps {
+  stats: {
+    totalXP: number;
+    questionsAnswered: number;
+    accuracy: number;
+    currentStreak: number;
+  } | null;
+}
+
+export function StatsGrid({ stats }: StatsGridProps) {
+  const displayStats = [
     {
-      value: '1,250',
+      value: stats ? stats.totalXP.toLocaleString() : '...',
       label: 'XP Earned',
       icon: faBolt,
       color: 'neon-glow-purple',
     },
     {
-      value: '428',
+      value: stats ? stats.questionsAnswered.toLocaleString() : '...',
       label: 'Questions Solved',
       icon: faCheckDouble,
       color: 'neon-glow-blue',
     },
     {
-      value: '85%',
+      value: stats ? `${stats.accuracy}%` : '...',
       label: 'Accuracy',
       icon: faBullseye,
       color: 'neon-glow-green',
     },
     {
-      value: '12 Days',
+      value: stats ? `${stats.currentStreak} Days` : '...',
       label: 'Streak',
       icon: faFire,
       color: 'neon-glow-pink',
@@ -40,7 +49,7 @@ export function StatsGrid() {
 
   return (
     <div className="grid grid-cols-4 gap-6">
-      {stats.map((stat, index) => (
+      {displayStats.map((stat, index) => (
         <div key={index} className="glass-card flex items-center gap-5 p-6">
           <div
             className={cn(

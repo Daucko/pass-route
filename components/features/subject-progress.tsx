@@ -1,12 +1,15 @@
-// components/features/subject-progress.tsx
-const subjects = [
-  { name: 'Mathematics', progress: 75, color: 'neon-blue' },
-  { name: 'English', progress: 60, color: 'neon-purple' },
-  { name: 'Physics', progress: 85, color: 'neon-green' },
-  { name: 'Chemistry', progress: 45, color: 'neon-pink' },
-];
+interface SubjectProgressProps {
+  subjects: Array<{
+    name: string;
+    progress: number;
+    color: string;
+  }>;
+}
 
-export function SubjectProgress() {
+export function SubjectProgress({ subjects }: SubjectProgressProps) {
+  // Use passed subjects or empty array/skeleton if loading (handled by parent typically, but good to be safe)
+  const displaySubjects = subjects.length > 0 ? subjects : [];
+
   return (
     <div className="glass-card">
       <div className="flex justify-between items-center mb-6">
@@ -14,7 +17,7 @@ export function SubjectProgress() {
       </div>
 
       <div className="grid grid-cols-2 gap-6">
-        {subjects.map((subject, index) => (
+        {displaySubjects.map((subject, index) => (
           <div key={index} className="flex flex-col items-center text-center">
             {/* Circular Progress Chart */}
             <div className="relative mb-3">
@@ -66,7 +69,7 @@ export function SubjectProgress() {
           <span>Completion</span>
         </div>
         <div className="mt-2 space-y-2">
-          {subjects.map((subject, index) => (
+          {displaySubjects.map((subject, index) => (
             <div key={index} className="flex justify-between items-center">
               <div className="flex items-center gap-2">
                 <div

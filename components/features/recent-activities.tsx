@@ -17,62 +17,29 @@ import {
   faChartSimple,
 } from '@fortawesome/free-solid-svg-icons';
 
-const activities = [
-  {
-    id: 1,
-    type: 'practice',
-    subject: 'Mathematics',
-    icon: faCalculator,
-    iconBg: 'bg-blue-500/20',
-    iconColor: 'text-neon-blue',
-    title: 'Algebra Practice',
-    description: '15 Questions • 92% Score',
-    time: '2 hours ago',
-    xp: 45,
-    status: 'completed',
-  },
-  {
-    id: 2,
-    type: 'exam',
-    subject: 'Physics',
-    icon: faAtom,
-    iconBg: 'bg-purple-500/20',
-    iconColor: 'text-neon-purple',
-    title: 'Mock Exam',
-    description: '50 Questions • 78% Score',
-    time: 'Yesterday',
-    xp: 120,
-    status: 'completed',
-  },
-  {
-    id: 3,
-    type: 'revision',
-    subject: 'Chemistry',
-    icon: faFlask,
-    iconBg: 'bg-green-500/20',
-    iconColor: 'text-neon-green',
-    title: 'Organic Chemistry',
-    description: 'Chapter 5 Revision',
-    time: '2 days ago',
-    xp: 30,
-    status: 'completed',
-  },
-  {
-    id: 4,
-    type: 'quiz',
-    subject: 'English',
-    icon: faBook,
-    iconBg: 'bg-pink-500/20',
-    iconColor: 'text-neon-pink',
-    title: 'Grammar Quiz',
-    description: 'Incomplete • 8/10 questions',
-    time: 'Just now',
-    xp: 0,
-    status: 'in-progress',
-  },
-];
+import { formatDistanceToNow } from 'date-fns';
 
-export function RecentActivity() {
+interface RecentActivityProps {
+  activities: any[];
+  stats: {
+    questionsAnswered: number; // using this for "Today" stat as a placeholder or real daily count if available
+    correctAnswers: number;
+    accuracy: number;
+    totalXP: number;
+  } | null;
+}
+
+export function RecentActivity({ activities, stats }: RecentActivityProps) {
+  // Helper to determine icon and color based on subject/type
+  const getActivityIcon = (subject: string) => {
+    const lower = subject.toLowerCase();
+    if (lower.includes('math')) return { icon: faCalculator, bg: 'bg-blue-500/20', color: 'text-neon-blue' };
+    if (lower.includes('physics')) return { icon: faAtom, bg: 'bg-green-500/20', color: 'text-neon-green' };
+    if (lower.includes('chem')) return { icon: faFlask, bg: 'bg-pink-500/20', color: 'text-neon-pink' };
+    if (lower.includes('english')) return { icon: faBook, bg: 'bg-purple-500/20', color: 'text-neon-purple' };
+    return { icon: faGraduationCap, bg: 'bg-gray-500/20', color: 'text-gray-400' };
+  };
+
   return (
     <div className="glass-card">
       <div className="flex justify-between items-center mb-6">
@@ -83,99 +50,103 @@ export function RecentActivity() {
       </div>
 
       <div className="space-y-4">
-        {activities.map((activity) => (
-          <div
-            key={activity.id}
-            className="flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-all duration-300 hover:bg-white/5 group"
-          >
-            {/* Icon */}
-            <div
-              className={cn(
-                'w-12 h-12 rounded-xl flex items-center justify-center text-lg',
-                activity.iconBg,
-                activity.iconColor
-              )}
-            >
-              <FontAwesomeIcon icon={activity.icon} />
-            </div>
-
-            {/* Activity Details */}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-semibold text-white truncate">
-                  {activity.title}
-                </h4>
-                {activity.status === 'in-progress' && (
-                  <span className="bg-yellow-500/20 text-yellow-400 px-2 py-1 rounded-full text-xs font-medium">
-                    In Progress
-                  </span>
-                )}
-              </div>
-              <p className="text-sm text-muted-foreground mb-1">
-                {activity.description}
-              </p>
-              <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                <span className="flex items-center gap-1">
-                  <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
-                  {activity.time}
-                </span>
-                <span className="flex items-center gap-1">
-                  <FontAwesomeIcon icon={faGraduationCap} className="w-3 h-3" />
-                  {activity.subject}
-                </span>
-              </div>
-            </div>
-
-            {/* XP and Actions */}
-            <div className="flex items-center gap-3">
-              {activity.xp > 0 && (
-                <div className="text-right">
-                  <div className="text-sm font-semibold text-neon-green">
-                    +{activity.xp} XP
-                  </div>
-                  <div className="text-xs text-muted-foreground">Earned</div>
-                </div>
-              )}
-
-              <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                {activity.status === 'completed' ? (
-                  <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors duration-200">
-                    <FontAwesomeIcon icon={faRotateRight} className="text-xs" />
-                  </button>
-                ) : (
-                  <button className="w-8 h-8 rounded-lg bg-neon-blue/20 hover:bg-neon-blue/30 border border-neon-blue/30 flex items-center justify-center transition-colors duration-200">
-                    <FontAwesomeIcon
-                      icon={faPlay}
-                      className="text-xs text-neon-blue"
-                    />
-                  </button>
-                )}
-                <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors duration-200">
-                  <FontAwesomeIcon icon={faChartLine} className="text-xs" />
-                </button>
-              </div>
-            </div>
+        {activities.length === 0 ? (
+          <div className="text-center text-muted-foreground py-8">
+            No recent activity. Start practicing!
           </div>
-        ))}
+        ) : (
+          activities.map((activity) => {
+            const style = getActivityIcon(activity.subject);
+            return (
+              <div
+                key={activity.id}
+                className="flex items-center gap-4 p-4 rounded-xl border border-white/5 hover:border-white/10 transition-all duration-300 hover:bg-white/5 group"
+              >
+                {/* Icon */}
+                <div
+                  className={cn(
+                    'w-12 h-12 rounded-xl flex items-center justify-center text-lg',
+                    style.bg,
+                    style.color
+                  )}
+                >
+                  <FontAwesomeIcon icon={style.icon} />
+                </div>
+
+                {/* Activity Details */}
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <h4 className="font-semibold text-white truncate">
+                      {activity.mode === 'practice' ? 'Practice Session' : 'Mock Exam'}
+                    </h4>
+                    {/* Status logic if needed, currently assuming completed for history */}
+                  </div>
+                  <p className="text-sm text-muted-foreground mb-1">
+                    {activity.questionsCount} Questions • {Math.round((activity.correctCount / activity.questionsCount) * 100)}% Score
+                  </p>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                    <span className="flex items-center gap-1">
+                      <FontAwesomeIcon icon={faClock} className="w-3 h-3" />
+                      {formatDistanceToNow(new Date(activity.createdAt), { addSuffix: true })}
+                    </span>
+                    <span className="flex items-center gap-1">
+                      <FontAwesomeIcon icon={faGraduationCap} className="w-3 h-3" />
+                      {activity.subject}
+                    </span>
+                  </div>
+                </div>
+
+                {/* XP and Actions */}
+                <div className="flex items-center gap-3">
+                  {activity.xpEarned > 0 && (
+                    <div className="text-right">
+                      <div className="text-sm font-semibold text-neon-green">
+                        +{activity.xpEarned} XP
+                      </div>
+                      <div className="text-xs text-muted-foreground">Earned</div>
+                    </div>
+                  )}
+
+                  <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                    <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors duration-200">
+                      <FontAwesomeIcon icon={faRotateRight} className="text-xs" />
+                    </button>
+                    <button className="w-8 h-8 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 flex items-center justify-center transition-colors duration-200">
+                      <FontAwesomeIcon icon={faChartLine} className="text-xs" />
+                    </button>
+                  </div>
+                </div>
+              </div>
+            );
+          })
+        )}
       </div>
 
       {/* Activity Summary */}
       <div className="mt-6 pt-6 border-t border-white/10">
         <div className="grid grid-cols-4 gap-4 text-center">
           <div>
-            <div className="text-2xl font-bold text-neon-blue mb-1">12</div>
-            <div className="text-xs text-muted-foreground">Today</div>
+            <div className="text-2xl font-bold text-neon-blue mb-1">
+              {stats ? stats.questionsAnswered : '...'}
+            </div>
+            <div className="text-xs text-muted-foreground">Total Questions</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-neon-green mb-1">84</div>
-            <div className="text-xs text-muted-foreground">This Week</div>
+            <div className="text-2xl font-bold text-neon-green mb-1">
+              {stats ? stats.correctAnswers : '...'}
+            </div>
+            <div className="text-xs text-muted-foreground">Correct</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-neon-purple mb-1">92%</div>
+            <div className="text-2xl font-bold text-neon-purple mb-1">
+              {stats ? `${stats.accuracy}%` : '...'}
+            </div>
             <div className="text-xs text-muted-foreground">Accuracy</div>
           </div>
           <div>
-            <div className="text-2xl font-bold text-neon-pink mb-1">1,250</div>
+            <div className="text-2xl font-bold text-neon-pink mb-1">
+              {stats ? stats.totalXP.toLocaleString() : '...'}
+            </div>
             <div className="text-xs text-muted-foreground">Total XP</div>
           </div>
         </div>
