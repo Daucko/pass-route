@@ -67,6 +67,8 @@ export function QuestionView({
   const [answers, setAnswers] = useState<Record<number, { selected: string; correct: boolean }>>({});
   const [showSummary, setShowSummary] = useState(false);
   const [sessionResult, setSessionResult] = useState<SessionResult | null>(null);
+  const [explanation, setExplanation] = useState<string | null>(null);
+  const [isExplaining, setIsExplaining] = useState(false);
 
   useEffect(() => {
     if (selectedSubject && isActive) {
@@ -84,6 +86,7 @@ export function QuestionView({
           setQuestions(data.questions || []);
           setCurrentQuestionIndex(0);
           setSelectedOption(null);
+          setExplanation(null); // Reset explanation
           setTime(0);
           setIsLoading(false);
         })
@@ -108,7 +111,34 @@ export function QuestionView({
   const currentQuestion = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
 
-  const handleOptionSelect = (optionId: string) => {
+  // Reset explanation when changing questions
+  useEffect(() => {
+    setExplanation(null);
+    setIsExplaining(false);
+
+    // If we have a cached explanation for this question, use it immediately
+    if (currentQuestion?.explanation) {
+      // We only show it if the user has answered, handled in UI check or setting state here if answered
+      // But typically we wait for answer.
+    }
+  }, [currentQuestionIndex, currentQuestion]);
+
+  // Restore explanation if revisiting a question we already answered
+  useEffect(() => {
+    if (answers[currentQuestionIndex]) {
+      // If we've answered, we should try to show explanation if available
+      if (currentQuestion?.explanation) {
+        setExplanation(currentQuestion.explanation);
+      } else {
+        // If not in question object (revisited), we might need to fetch again, 
+        // OR better: we fetch it properly below. 
+        // For now, let's assume if it wasn't in the initial fetch, we fetch on answer.
+      }
+    }
+  }, [currentQuestionIndex, answers, currentQuestion]);
+
+
+  const handleOptionSelect = async (optionId: string) => {
     if (answers[currentQuestionIndex]) return; // Already answered
 
     setSelectedOption(optionId);
@@ -118,6 +148,36 @@ export function QuestionView({
       ...prev,
       [currentQuestionIndex]: { selected: optionId, correct: isCorrect },
     }));
+
+    // Fetch Explanation
+    if (currentQuestion.explanation) {
+      setExplanation(currentQuestion.explanation);
+    } else {
+      setIsExplaining(true);
+      try {
+        const response = await fetch('/api/ai/explain', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            questionId: currentQuestion.id,
+            questionText: currentQuestion.text,
+            options: currentQuestion.options,
+            correctAnswer: currentQuestion.options.find(o => o.correct)?.id || 'unknown'
+          }),
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setExplanation(data.explanation);
+          // Also update the local question object so we don't fetch again if they revisit
+          currentQuestion.explanation = data.explanation;
+        }
+      } catch (error) {
+        console.error('Error fetching explanation:', error);
+      } finally {
+        setIsExplaining(false);
+      }
+    }
   };
 
   const handleNextQuestion = () => {
@@ -297,9 +357,38 @@ export function QuestionView({
                   </button>
                 ))}
               </div>
+
+              {/* Explanation Section */}
+              {(explanation || isExplaining) && (
+                <div className="mt-8 p-6 bg-blue-500/10 border border-blue-500/30 rounded-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
+                      <FontAwesomeIcon icon={faBook} className="text-blue-400" />
+                    </div>
+                    <h4 className="text-lg font-semibold text-blue-100">Why is this correct?</h4>
+                    {isExplaining && (
+                      <span className="text-xs text-blue-300 animate-pulse ml-auto">Generating explanation...</span>
+                    )}
+                  </div>
+
+                  {isExplaining ? (
+                    <div className="space-y-2">
+                      <div className="h-4 bg-blue-400/10 rounded w-3/4 animate-pulse"></div>
+                      <div className="h-4 bg-blue-400/10 rounded w-full animate-pulse"></div>
+                      <div className="h-4 bg-blue-400/10 rounded w-5/6 animate-pulse"></div>
+                    </div>
+                  ) : (
+                    <div
+                      className="text-blue-100/90 leading-relaxed text-sm"
+                      dangerouslySetInnerHTML={{ __html: explanation || '' }}
+                    />
+                  )}
+                </div>
+              )}
             </>
           ) : (
             <div className="text-center py-16">
+
               <p className="text-muted-foreground">
                 No questions available for this subject.
               </p>

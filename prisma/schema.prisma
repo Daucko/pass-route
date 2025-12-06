@@ -63,6 +63,7 @@ model Question {
   year          Int?
   examType      String?  @map("exam_type") // 'utme', 'wassce', 'post-utme'
   explanation   String?  @map("explanation") @db.Text
+  explanationImage String? @map("explanation_image")
   createdAt     DateTime @default(now()) @map("created_at")
   
   @@index([subject])
