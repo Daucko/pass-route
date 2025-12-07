@@ -162,7 +162,7 @@ export function RecentActivity({ activities, stats }: RecentActivityProps) {
       </div>
 
       {/* Quick Actions */}
-      <div className="mt-6 flex gap-3">
+      <div className="mt-6 flex flex-col lg:flex-row gap-3">
         <button className="flex-1 bg-white/5 hover:bg-white/10 border border-white/10 text-white py-3 rounded-xl text-sm font-medium transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2">
           <FontAwesomeIcon icon={faPlus} />
           New Session
