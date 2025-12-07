@@ -23,10 +23,9 @@ export function Navbar() {
               alt="logo"
               width={170}
               height={150}
-              className="object-contain"
+              className="object-contain max-w-[80px] md:max-w-[120px] lg:max-w-[170px]"
             />
           </Link>
-
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center gap-8">
             <Link
