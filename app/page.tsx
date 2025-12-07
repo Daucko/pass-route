@@ -23,7 +23,7 @@ export default function Home() {
 
       <main className="container max-w-7xl mx-auto px-4">
         {/* Hero Section */}
-        <section className="min-h-screen flex items-center justify-center py-32">
+        <section className="min-h-screen flex items-center justify-center pt-32 ">
           <div className="glass-card rounded-[40px] p-16 text-center relative overflow-hidden border-white/15 max-w-4xl">
             <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/50 to-transparent" />
 

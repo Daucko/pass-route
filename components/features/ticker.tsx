@@ -11,7 +11,7 @@ export function Ticker() {
   ];
 
   return (
-    <div className="w-full overflow-hidden bg-black/30 py-4 mb-16 border-y border-white/10 mask-gradient">
+    <div className="w-full overflow-hidden bg-black/30 py-4 my-10 border-y border-white/10 mask-gradient">
       <div className="flex animate-scroll">
         {[...tickerItems, ...tickerItems].map((item, index) => (
           <div key={index} className="flex items-center gap-3 px-8 shrink-0">
