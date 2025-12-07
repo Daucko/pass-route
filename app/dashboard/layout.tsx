@@ -12,7 +12,9 @@ export default function DashboardLayout({
       <BackgroundBlobs />
       <div className="flex min-h-screen">
         <Sidebar />
-        <main className="flex-1 ml-80 p-8">{children}</main>
+        <main className="flex-1 lg:ml-80 p-4 lg:p-8 pt-20 lg:pt-8">
+          {children}
+        </main>
       </div>
     </UserSyncProvider>
   );

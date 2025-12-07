@@ -48,7 +48,7 @@ export function StatsGrid({ stats }: StatsGridProps) {
   ];
 
   return (
-    <div className="grid grid-cols-4 gap-6">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
       {displayStats.map((stat, index) => (
         <div key={index} className="glass-card flex items-center gap-5 p-6">
           <div

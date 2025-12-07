@@ -1,4 +1,3 @@
-// app/practice/page.tsx
 'use client';
 
 import { useState } from 'react';
@@ -65,15 +64,15 @@ export default function Practice() {
 
   return (
     <>
-      <header className="flex justify-between items-center mb-10">
-        <div>
-          <h1 className="text-3xl font-bold mb-2">Practice Arena 🎯</h1>
+      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-0 mb-6 lg:mb-10">
+        <div className="w-full lg:w-auto">
+          <h1 className="text-2xl lg:text-3xl font-bold mb-2">Practice Arena 🎯</h1>
           <p className="text-muted-foreground">
             Sharpen your skills and prepare for the exam.
           </p>
         </div>
-        <div className="flex items-center gap-5">
-          <div className="glass-panel flex items-center gap-3 px-5 py-3 rounded-full w-80">
+        <div className="flex items-center gap-3 w-full lg:w-auto">
+          <div className="glass-panel flex items-center gap-3 px-4 lg:px-5 py-3 rounded-full flex-1 lg:flex-none lg:w-80">
             <FontAwesomeIcon
               icon={faSearch}
               className="text-muted-foreground"
@@ -81,31 +80,31 @@ export default function Practice() {
             <input
               type="text"
               placeholder="Search topics..."
-              className="bg-transparent border-none outline-none text-white w-full placeholder:text-muted-foreground"
+              className="bg-transparent border-none outline-none text-white w-full placeholder:text-muted-foreground text-sm lg:text-base"
             />
           </div>
-          <button className="glass-panel w-12 h-12 rounded-full flex items-center justify-center border border-white/10">
+          <button className="glass-panel w-10 h-10 lg:w-12 lg:h-12 rounded-full flex items-center justify-center border border-white/10 flex-shrink-0">
             <FontAwesomeIcon icon={faBell} />
           </button>
         </div>
       </header>
 
-      <div className="space-y-8">
+      <div className="space-y-6 lg:space-y-8">
         <div>
-          <h2 className="text-2xl font-bold mb-2">Select Subject</h2>
-          <p className="text-muted-foreground">
+          <h2 className="text-xl lg:text-2xl font-bold mb-2">Select Subject</h2>
+          <p className="text-muted-foreground text-sm lg:text-base">
             Choose a subject to start practicing
           </p>
         </div>
 
         {/* Mode Selection */}
-        <div className="flex gap-4">
+        <div className="flex flex-wrap gap-3 lg:gap-4">
           {modes.map((mode) => (
             <button
               key={mode}
               onClick={() => setActiveMode(mode)}
               className={cn(
-                'px-6 py-3 rounded-full border transition-all duration-300',
+                'px-4 lg:px-6 py-2 lg:py-3 rounded-full border transition-all duration-300 text-sm lg:text-base',
                 activeMode === mode
                   ? 'bg-neon-blue/10 text-neon-blue border-neon-blue'
                   : 'bg-white/5 border-white/10 text-muted-foreground hover:text-white'
@@ -117,19 +116,19 @@ export default function Practice() {
         </div>
 
         {/* Subjects Grid */}
-        <div className="grid grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
           {subjects.map((subject) => (
             <div
               key={subject.name}
-              className="glass-card text-center p-8 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+              className="glass-card text-center p-6 lg:p-8 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
               onClick={() => handleSubjectClick(subject.name)}
             >
-              <div className={cn('text-4xl mb-6', subject.color)}>
+              <div className={cn('text-3xl lg:text-4xl mb-4 lg:mb-6', subject.color)}>
                 <FontAwesomeIcon icon={subject.icon} />
               </div>
-              <h3 className="text-xl font-semibold mb-3">{subject.name}</h3>
-              <p className="text-muted-foreground mb-6">{subject.topics}</p>
-              <button className="cta-button bg-gradient-to-r from-neon-blue to-neon-purple text-white px-8 py-3 rounded-full font-semibold shadow-lg shadow-purple-500/40 hover:scale-105 transition-all duration-300">
+              <h3 className="text-lg lg:text-xl font-semibold mb-2 lg:mb-3">{subject.name}</h3>
+              <p className="text-muted-foreground text-sm lg:text-base mb-4 lg:mb-6">{subject.topics}</p>
+              <button className="cta-button bg-gradient-to-r from-neon-blue to-neon-purple text-white px-6 lg:px-8 py-2 lg:py-3 rounded-full font-semibold shadow-lg shadow-purple-500/40 hover:scale-105 transition-all duration-300 text-sm lg:text-base">
                 Start
               </button>
             </div>

@@ -1,4 +1,3 @@
-// app/dashboard/page.tsx
 'use client';
 
 import { useEffect, useState } from 'react';
@@ -67,7 +66,7 @@ export default function Dashboard() {
       <DashboardHeader userName={user?.firstName || 'Student'} />
       <div className="space-y-6">
         <StatsGrid stats={stats ? stats.user : null} />
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <SubjectProgress subjects={stats ? stats.subjectMastery : []} />
           <DailyChallenge streak={stats ? stats.user.currentStreak : 0} />
         </div>
