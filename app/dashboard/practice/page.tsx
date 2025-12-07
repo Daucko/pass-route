@@ -12,6 +12,7 @@ import {
   faFlask,
 } from '@fortawesome/free-solid-svg-icons';
 import { QuestionView } from '@/components/features/question-view';
+import { useUser } from '@clerk/nextjs';
 
 const subjects = [
   {
@@ -45,6 +46,8 @@ export default function Practice() {
   const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
   const [isQuestionViewActive, setIsQuestionViewActive] = useState(false);
 
+  const { user } = useUser();
+
   const modes = ['Practice Mode', 'Timed Mode', 'Mock Exam'];
 
   const handleSubjectClick = (subjectName: string) => {
@@ -64,7 +67,7 @@ export default function Practice() {
 
   return (
     <>
-      <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-0 mb-6 lg:mb-10">
+      <header className="hidden lg:flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-0 mb-6 lg:mb-10">
         <div className="w-full lg:w-auto">
           <h1 className="text-2xl lg:text-3xl font-bold mb-2">Practice Arena 🎯</h1>
           <p className="text-muted-foreground">
@@ -88,6 +91,15 @@ export default function Practice() {
           </button>
         </div>
       </header>
+
+      <div className="lg:hidden mb-6 lg:mb-10">
+        <h1 className="text-2xl lg:text-3xl font-bold mb-2">
+          Good Afternoon, {user?.firstName || 'Student'}! 👋
+        </h1>
+        <p className="text-muted-foreground">
+          Ready to crush some questions today?
+        </p>
+      </div>
 
       <div className="space-y-6 lg:space-y-8">
         <div>

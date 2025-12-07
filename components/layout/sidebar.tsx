@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 import { UserButton, useUser } from '@clerk/nextjs';
 import { cn } from '@/lib/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faBars, faTimes, faSearch, faBell } from '@fortawesome/free-solid-svg-icons';
 import { LevelBadge } from '@/components/features/level-badge';
 import { XPProgressBar } from '@/components/features/xp-progress-bar';
 
@@ -80,17 +80,37 @@ export function Sidebar() {
 
   return (
     <>
-      {/* Mobile Hamburger Button */}
-      <button
-        onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 text-white hover:text-neon-blue transition-colors bg-black/20 backdrop-blur-sm rounded-lg"
-        aria-label="Toggle sidebar"
-      >
-        <FontAwesomeIcon
-          icon={mobileMenuOpen ? faTimes : faBars}
-          className="text-xl"
-        />
-      </button>
+      {/* Mobile Header with all three elements in one line */}
+      <div className="lg:hidden fixed top-0 left-0 right-0 z-50 bg-black/40 backdrop-blur-md border-b border-white/10 px-4 py-3">
+        <div className="flex items-center justify-between gap-3">
+          {/* Hamburger Button */}
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-white hover:text-neon-blue transition-colors rounded-lg"
+            aria-label="Toggle sidebar"
+          >
+            <FontAwesomeIcon
+              icon={mobileMenuOpen ? faTimes : faBars}
+              className="text-xl"
+            />
+          </button>
+
+          {/* Search Bar - Takes available space */}
+          <div className="glass-panel flex items-center gap-3 px-4 py-2 rounded-full flex-1">
+            <FontAwesomeIcon icon={faSearch} className="text-muted-foreground text-sm" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="bg-transparent border-none outline-none text-white w-full placeholder:text-muted-foreground text-sm"
+            />
+          </div>
+
+          {/* Notification Bell */}
+          <button className="glass-panel w-10 h-10 rounded-full flex items-center justify-center border border-white/10 flex-shrink-0">
+            <FontAwesomeIcon icon={faBell} className="text-sm" />
+          </button>
+        </div>
+      </div>
 
       {/* Mobile Overlay */}
       {mobileMenuOpen && (

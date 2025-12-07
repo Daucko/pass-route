@@ -64,6 +64,16 @@ export default function Dashboard() {
   return (
     <>
       <DashboardHeader userName={user?.firstName || 'Student'} />
+      {/* Remove DashboardHeader in mobile */}
+      <div className="lg:hidden mb-6 lg:mb-10">
+        <h1 className="text-2xl lg:text-3xl font-bold mb-2">
+          Good Afternoon, {user?.firstName || 'Student'}! 👋
+        </h1>
+        <p className="text-muted-foreground">
+          Ready to crush some questions today?
+        </p>
+      </div>
+
       <div className="space-y-6">
         <StatsGrid stats={stats ? stats.user : null} />
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
