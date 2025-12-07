@@ -5,11 +5,6 @@ import { Button } from "@/components/ui/button";
 import { Home, RefreshCw, Github, ExternalLink, AlertTriangle } from "lucide-react";
 import Link from "next/link";
 
-interface ColorPalette {
-    MysticMint: string;
-    NocturnalExpedition: string;
-}
-
 interface Ball {
     x: number;
     y: number;
@@ -28,31 +23,31 @@ export default function NotFound() {
     const [isMounted, setIsMounted] = useState(false);
 
     // Updated colors to match your dark theme
-    const DAY_COLOR = "#D9E8E3"; // Mystic Mint
-    const DAY_BALL_COLOR = "#00f0ff"; // Neon Blue from your theme
-    const NIGHT_COLOR = "#114C5A"; // Nocturnal Expedition
-    const NIGHT_BALL_COLOR = "#bd00ff"; // Neon Purple from your theme
+    const DAY_COLOR = "#D9E8E3"; // Light mint
+    const DAY_BALL_COLOR = "#00f0ff"; // Neon Blue
+    const NIGHT_COLOR = "#114C5A"; // Dark teal
+    const NIGHT_BALL_COLOR = "#bd00ff"; // Neon Purple
 
-    const SQUARE_SIZE = 20; // Smaller for better visibility on 404 page
-    const MIN_SPEED = 4;
-    const MAX_SPEED = 8;
-    const CANVAS_SIZE = 400; // Smaller for 404 page
+    const SQUARE_SIZE = 20;
+    const MIN_SPEED = 3;
+    const MAX_SPEED = 6;
+    const CANVAS_SIZE = 400;
 
-    const [squares, setSquares] = useState<string[][]>([]);
+    const squaresRef = useRef<string[][]>([]);
     const ballsRef = useRef<Ball[]>([
         {
             x: CANVAS_SIZE / 4,
             y: CANVAS_SIZE / 2,
-            dx: 6,
-            dy: -6,
+            dx: 4,
+            dy: -4,
             reverseColor: DAY_COLOR,
             ballColor: DAY_BALL_COLOR,
         },
         {
             x: (CANVAS_SIZE / 4) * 3,
             y: CANVAS_SIZE / 2,
-            dx: -6,
-            dy: 6,
+            dx: -4,
+            dy: 4,
             reverseColor: NIGHT_COLOR,
             ballColor: NIGHT_BALL_COLOR,
         },
@@ -71,21 +66,31 @@ export default function NotFound() {
                 initialSquares[i][j] = i < numSquaresX / 2 ? DAY_COLOR : NIGHT_COLOR;
             }
         }
-        setSquares(initialSquares);
+        squaresRef.current = initialSquares;
+
+        // Calculate initial scores
+        const totalSquares = numSquaresX * numSquaresY;
+        setDayScore(Math.floor(totalSquares / 2));
+        setNightScore(Math.floor(totalSquares / 2));
+
+        // Start animation
+        if (isRunning) {
+            startAnimation();
+        }
     }, []);
 
     const drawBall = (ctx: CanvasRenderingContext2D, ball: Ball) => {
+        // Draw ball with simple fill (no complex shadows that might cause issues)
         ctx.beginPath();
-        ctx.arc(ball.x, ball.y, SQUARE_SIZE / 2, 0, Math.PI * 2, false);
+        ctx.arc(ball.x, ball.y, SQUARE_SIZE / 2, 0, Math.PI * 2);
         ctx.fillStyle = ball.ballColor;
         ctx.fill();
 
-        // Add neon glow effect
-        ctx.shadowColor = ball.ballColor;
-        ctx.shadowBlur = 15;
+        // Add a subtle glow effect using a larger, semi-transparent circle
+        ctx.beginPath();
+        ctx.arc(ball.x, ball.y, SQUARE_SIZE / 2 + 3, 0, Math.PI * 2);
+        ctx.fillStyle = ball.ballColor + "40"; // 25% opacity hex
         ctx.fill();
-        ctx.shadowBlur = 0;
-        ctx.closePath();
     };
 
     const drawSquares = (ctx: CanvasRenderingContext2D) => {
@@ -94,14 +99,21 @@ export default function NotFound() {
         const numSquaresX = Math.floor(CANVAS_SIZE / SQUARE_SIZE);
         const numSquaresY = Math.floor(CANVAS_SIZE / SQUARE_SIZE);
 
+        // Draw squares
         for (let i = 0; i < numSquaresX; i++) {
             for (let j = 0; j < numSquaresY; j++) {
-                ctx.fillStyle = squares[i]?.[j] || DAY_COLOR;
+                const color = squaresRef.current[i]?.[j] || DAY_COLOR;
+                ctx.fillStyle = color;
                 ctx.fillRect(i * SQUARE_SIZE, j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
 
+                // Draw subtle grid lines
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+                ctx.lineWidth = 0.5;
+                ctx.strokeRect(i * SQUARE_SIZE, j * SQUARE_SIZE, SQUARE_SIZE, SQUARE_SIZE);
+
                 // Update scores
-                if (squares[i]?.[j] === DAY_COLOR) dayCount++;
-                if (squares[i]?.[j] === NIGHT_COLOR) nightCount++;
+                if (color === DAY_COLOR) dayCount++;
+                if (color === NIGHT_COLOR) nightCount++;
             }
         }
 
@@ -109,52 +121,81 @@ export default function NotFound() {
         setNightScore(nightCount);
     };
 
-    const checkSquareCollision = (ball: Ball, squares: string[][]) => {
+    const updateBallPosition = (ball: Ball) => {
+        // Move ball
+        ball.x += ball.dx;
+        ball.y += ball.dy;
+
+        // Check boundary collision
+        const radius = SQUARE_SIZE / 2;
+        if (ball.x + radius > CANVAS_SIZE || ball.x - radius < 0) {
+            ball.dx = -ball.dx;
+            // Ensure ball stays within bounds
+            ball.x = Math.max(radius, Math.min(CANVAS_SIZE - radius, ball.x));
+        }
+        if (ball.y + radius > CANVAS_SIZE || ball.y - radius < 0) {
+            ball.dy = -ball.dy;
+            // Ensure ball stays within bounds
+            ball.y = Math.max(radius, Math.min(CANVAS_SIZE - radius, ball.y));
+        }
+    };
+
+    const checkBallSquareCollision = (ball: Ball) => {
         const numSquaresX = Math.floor(CANVAS_SIZE / SQUARE_SIZE);
         const numSquaresY = Math.floor(CANVAS_SIZE / SQUARE_SIZE);
-        const updatedSquares = squares.map(row => [...row]);
 
-        for (let angle = 0; angle < Math.PI * 2; angle += Math.PI / 4) {
-            const checkX = ball.x + Math.cos(angle) * (SQUARE_SIZE / 2);
-            const checkY = ball.y + Math.sin(angle) * (SQUARE_SIZE / 2);
+        // Get the grid cell the ball center is in
+        const gridX = Math.floor(ball.x / SQUARE_SIZE);
+        const gridY = Math.floor(ball.y / SQUARE_SIZE);
 
-            const i = Math.floor(checkX / SQUARE_SIZE);
-            const j = Math.floor(checkY / SQUARE_SIZE);
+        // Check 3x3 area around the ball
+        for (let dx = -1; dx <= 1; dx++) {
+            for (let dy = -1; dy <= 1; dy++) {
+                const checkX = gridX + dx;
+                const checkY = gridY + dy;
 
-            if (i >= 0 && i < numSquaresX && j >= 0 && j < numSquaresY) {
-                if (updatedSquares[i]?.[j] !== ball.reverseColor) {
-                    updatedSquares[i][j] = ball.reverseColor;
+                if (checkX >= 0 && checkX < numSquaresX && checkY >= 0 && checkY < numSquaresY) {
+                    const currentColor = squaresRef.current[checkX]?.[checkY];
 
-                    if (Math.abs(Math.cos(angle)) > Math.abs(Math.sin(angle))) {
-                        ball.dx = -ball.dx;
-                    } else {
-                        ball.dy = -ball.dy;
+                    // Calculate distance from ball center to square center
+                    const squareCenterX = checkX * SQUARE_SIZE + SQUARE_SIZE / 2;
+                    const squareCenterY = checkY * SQUARE_SIZE + SQUARE_SIZE / 2;
+                    const distance = Math.sqrt(
+                        Math.pow(ball.x - squareCenterX, 2) +
+                        Math.pow(ball.y - squareCenterY, 2)
+                    );
+
+                    // If ball is close enough to the square and square is not already the ball's color
+                    if (distance < SQUARE_SIZE && currentColor && currentColor !== ball.reverseColor) {
+                        squaresRef.current[checkX][checkY] = ball.reverseColor;
+
+                        // Bounce effect based on collision direction
+                        if (Math.abs(dx) > Math.abs(dy)) {
+                            ball.dx = -ball.dx * 1.05; // Slight speed boost on bounce
+                        } else {
+                            ball.dy = -ball.dy * 1.05;
+                        }
                     }
                 }
             }
         }
-
-        return updatedSquares;
-    };
-
-    const checkBoundaryCollision = (ball: Ball) => {
-        if (ball.x + ball.dx > CANVAS_SIZE - SQUARE_SIZE / 2 || ball.x + ball.dx < SQUARE_SIZE / 2) {
-            ball.dx = -ball.dx;
-        }
-        if (ball.y + ball.dy > CANVAS_SIZE - SQUARE_SIZE / 2 || ball.y + ball.dy < SQUARE_SIZE / 2) {
-            ball.dy = -ball.dy;
-        }
     };
 
     const addRandomness = (ball: Ball) => {
-        ball.dx += (Math.random() - 0.5) * 0.8;
-        ball.dy += (Math.random() - 0.5) * 0.8;
+        // Add subtle randomness to movement
+        ball.dx += (Math.random() - 0.5) * 0.2;
+        ball.dy += (Math.random() - 0.5) * 0.2;
 
-        ball.dx = Math.min(Math.max(ball.dx, -MAX_SPEED), MAX_SPEED);
-        ball.dy = Math.min(Math.max(ball.dy, -MAX_SPEED), MAX_SPEED);
-
-        if (Math.abs(ball.dx) < MIN_SPEED) ball.dx = ball.dx > 0 ? MIN_SPEED : -MIN_SPEED;
-        if (Math.abs(ball.dy) < MIN_SPEED) ball.dy = ball.dy > 0 ? MIN_SPEED : -MIN_SPEED;
+        // Limit speed
+        const speed = Math.sqrt(ball.dx * ball.dx + ball.dy * ball.dy);
+        if (speed > MAX_SPEED) {
+            ball.dx = (ball.dx / speed) * MAX_SPEED;
+            ball.dy = (ball.dy / speed) * MAX_SPEED;
+        }
+        if (speed < MIN_SPEED) {
+            ball.dx = (ball.dx / speed) * MIN_SPEED;
+            ball.dy = (ball.dy / speed) * MIN_SPEED;
+        }
     };
 
     const draw = () => {
@@ -164,23 +205,23 @@ export default function NotFound() {
         const ctx = canvas.getContext("2d");
         if (!ctx) return;
 
-        // Clear with dark background
-        ctx.fillStyle = "rgba(0, 0, 0, 0.1)";
+        // Clear canvas with dark background
+        ctx.fillStyle = "rgba(0, 0, 0, 0.9)";
         ctx.fillRect(0, 0, CANVAS_SIZE, CANVAS_SIZE);
 
+        // Draw squares first
         drawSquares(ctx);
 
-        let updatedSquares = squares.map(row => [...row]);
+        // Update and draw balls
         ballsRef.current.forEach((ball) => {
-            drawBall(ctx, ball);
-            updatedSquares = checkSquareCollision(ball, updatedSquares);
-            checkBoundaryCollision(ball);
-            ball.x += ball.dx;
-            ball.y += ball.dy;
+            // Update ball position and check collisions
+            updateBallPosition(ball);
+            checkBallSquareCollision(ball);
             addRandomness(ball);
-        });
 
-        setSquares(updatedSquares);
+            // Draw the ball
+            drawBall(ctx, ball);
+        });
     };
 
     const startAnimation = () => {
@@ -215,42 +256,45 @@ export default function NotFound() {
                 initialSquares[i][j] = i < numSquaresX / 2 ? DAY_COLOR : NIGHT_COLOR;
             }
         }
-        setSquares(initialSquares);
+        squaresRef.current = initialSquares;
 
         ballsRef.current = [
             {
                 x: CANVAS_SIZE / 4,
                 y: CANVAS_SIZE / 2,
-                dx: 6,
-                dy: -6,
+                dx: 4,
+                dy: -4,
                 reverseColor: DAY_COLOR,
                 ballColor: DAY_BALL_COLOR,
             },
             {
                 x: (CANVAS_SIZE / 4) * 3,
                 y: CANVAS_SIZE / 2,
-                dx: -6,
-                dy: 6,
+                dx: -4,
+                dy: 4,
                 reverseColor: NIGHT_COLOR,
                 ballColor: NIGHT_BALL_COLOR,
             },
         ];
 
-        setDayScore(0);
-        setNightScore(0);
+        const totalSquares = numSquaresX * numSquaresY;
+        setDayScore(Math.floor(totalSquares / 2));
+        setNightScore(Math.floor(totalSquares / 2));
         setIsRunning(true);
+
+        // Start animation
         startAnimation();
     };
 
     useEffect(() => {
-        if (isMounted && isRunning && squares.length > 0) {
+        if (isMounted && isRunning) {
             startAnimation();
         }
 
         return () => {
             stopAnimation();
         };
-    }, [isMounted, isRunning, squares.length]);
+    }, [isMounted, isRunning]);
 
     const toggleAnimation = () => {
         if (isRunning) {
@@ -260,6 +304,17 @@ export default function NotFound() {
         }
         setIsRunning(!isRunning);
     };
+
+    // Force a redraw when mounted
+    useEffect(() => {
+        if (isMounted && canvasRef.current) {
+            const ctx = canvasRef.current.getContext('2d');
+            if (ctx) {
+                // Initial draw
+                draw();
+            }
+        }
+    }, [isMounted]);
 
     if (!isMounted) {
         return (
@@ -271,6 +326,8 @@ export default function NotFound() {
             </div>
         );
     }
+
+    const totalSquares = Math.floor(CANVAS_SIZE / SQUARE_SIZE) * Math.floor(CANVAS_SIZE / SQUARE_SIZE);
 
     return (
         <div className="min-h-screen bg-gradient-to-b from-background via-background to-[#172B36]/30 flex flex-col items-center justify-center p-4 relative overflow-hidden">
@@ -313,12 +370,12 @@ export default function NotFound() {
                             <div className="flex items-center justify-between">
                                 <div className="text-center">
                                     <div className="text-2xl lg:text-3xl font-bold neon-glow-blue font-mono">{dayScore}</div>
-                                    <div className="text-xs text-muted-foreground mt-1">Day</div>
+                                    <div className="text-xs text-muted-foreground mt-1">Day ({Math.round((dayScore / totalSquares) * 100)}%)</div>
                                 </div>
                                 <div className="h-8 w-px bg-border"></div>
                                 <div className="text-center">
                                     <div className="text-2xl lg:text-3xl font-bold neon-glow-purple font-mono">{nightScore}</div>
-                                    <div className="text-xs text-muted-foreground mt-1">Night</div>
+                                    <div className="text-xs text-muted-foreground mt-1">Night ({Math.round((nightScore / totalSquares) * 100)}%)</div>
                                 </div>
                             </div>
                         </div>
@@ -360,7 +417,7 @@ export default function NotFound() {
                                 ref={canvasRef}
                                 width={CANVAS_SIZE}
                                 height={CANVAS_SIZE}
-                                className="relative rounded-2xl border border-border/50 shadow-2xl"
+                                className="relative rounded-2xl border border-border/50 shadow-2xl bg-black"
                                 data-mounted={isMounted}
                             />
 
@@ -372,18 +429,35 @@ export default function NotFound() {
                             </div>
                         </div>
 
+                        {/* Game Info */}
+                        <div className="mt-8 text-center">
+                            <p className="text-sm text-muted-foreground">
+                                Watch the balls convert squares to their colors!
+                                <span className="block mt-1">
+                                    <span className="text-[#00f0ff]">Blue ball</span> converts to light squares •
+                                    <span className="text-[#bd00ff]"> Purple ball</span> converts to dark squares
+                                </span>
+                            </p>
+                        </div>
+
                         {/* Controls and Info */}
-                        <div className="mt-10 lg:mt-12 w-full max-w-md">
+                        <div className="mt-6 w-full max-w-md">
                             <div className="glass-panel rounded-xl p-4">
-                                <h4 className="text-sm font-semibold text-white mb-3">Game Controls</h4>
-                                <div className="grid grid-cols-2 gap-3 text-xs">
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-3 w-3 rounded-full bg-[#00f0ff]"></div>
-                                        <span className="text-muted-foreground">Day Ball (Blue)</span>
+                                <h4 className="text-sm font-semibold text-white mb-3">Game Info</h4>
+                                <div className="grid grid-cols-1 gap-2 text-xs">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-3 w-3 rounded-full bg-[#00f0ff] animate-pulse"></div>
+                                            <span className="text-muted-foreground">Day Ball (Blue)</span>
+                                        </div>
+                                        <span className="text-white">Converts to light</span>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                        <div className="h-3 w-3 rounded-full bg-[#bd00ff]"></div>
-                                        <span className="text-muted-foreground">Night Ball (Purple)</span>
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <div className="h-3 w-3 rounded-full bg-[#bd00ff] animate-pulse"></div>
+                                            <span className="text-muted-foreground">Night Ball (Purple)</span>
+                                        </div>
+                                        <span className="text-white">Converts to dark</span>
                                     </div>
                                 </div>
                             </div>
@@ -420,12 +494,12 @@ export default function NotFound() {
                 <div className="mt-12 lg:mt-16 pt-8 border-t border-border/50">
                     <div className="max-w-2xl mx-auto text-center space-y-4">
                         <h3 className="text-lg font-semibold text-white">
-                            Lost in the Digital Void?
+                            How It Works
                         </h3>
                         <p className="text-muted-foreground">
-                            This 404 page features an interactive port of Pong Wars, where two balls battle for territory.
-                            Watch as the neon blue (Day) and purple (Night) balls bounce around, converting squares to their colors.
-                            The score shows how much territory each side has conquered.
+                            Two balls representing Day (blue) and Night (purple) bounce around the grid.
+                            When they hit a square, they convert it to their color territory.
+                            Watch the scores change in real-time as the battle unfolds!
                         </p>
                         <p className="text-sm text-muted-foreground/70 font-mono pt-2">
                             Built with Next.js 15 • TypeScript • Tailwind CSS • shadcn/ui
