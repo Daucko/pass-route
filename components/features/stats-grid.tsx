@@ -50,18 +50,18 @@ export function StatsGrid({ stats }: StatsGridProps) {
   return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
       {displayStats.map((stat, index) => (
-        <div key={index} className="glass-card flex items-center gap-5 p-6">
+        <div key={index} className="glass-card flex items-center gap-5 p-4 lg:p-6">
           <div
             className={cn(
-              'w-12 h-12 rounded-xl bg-white/5 flex items-center justify-center text-xl',
+              'size-10 lg:size-12 rounded-xl bg-white/5 flex items-center justify-center text-lg lg:text-xl',
               stat.color
             )}
           >
             <FontAwesomeIcon icon={stat.icon} />
           </div>
           <div>
-            <h3 className="text-2xl font-bold mb-1">{stat.value}</h3>
-            <p className="text-muted-foreground text-sm">{stat.label}</p>
+            <h3 className="text-lg lg:text-xl font-bold mb-1">{stat.value}</h3>
+            <p className="text-muted-foreground text-xs lg:text-sm">{stat.label}</p>
           </div>
         </div>
       ))}

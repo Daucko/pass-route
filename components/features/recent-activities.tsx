@@ -133,7 +133,7 @@ export function RecentActivity({ activities, stats }: RecentActivityProps) {
 
       {/* Activity Summary */}
       <div className="mt-6 pt-6 border-t border-white/10">
-        <div className="grid grid-cols-4 gap-4 text-center">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
           <div>
             <div className="text-2xl font-bold text-neon-blue mb-1">
               {stats ? stats.questionsAnswered : '...'}

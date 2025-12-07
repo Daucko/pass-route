@@ -16,7 +16,7 @@ export function SubjectProgress({ subjects }: SubjectProgressProps) {
         <h3 className="text-xl font-semibold">Subject Mastery</h3>
       </div>
 
-      <div className="grid grid-cols-2 gap-6">
+      <div className="grid grid-cols-2 gap-4 lg:gap-6">
         {displaySubjects.map((subject, index) => (
           <div key={index} className="flex flex-col items-center text-center">
             {/* Circular Progress Chart */}
