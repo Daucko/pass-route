@@ -106,7 +106,7 @@ export function RecentActivity({ activities, stats }: RecentActivityProps) {
                 </div>
 
                 {/* XP and Actions */}
-                <div className="flex items-center gap-3">
+                <div className="flex flex-col lg:flex-row items-center gap-3">
                   {activity.xpEarned > 0 && (
                     <div className="text-right">
                       <div className="text-sm font-semibold text-neon-green">
