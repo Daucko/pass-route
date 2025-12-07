@@ -16,13 +16,14 @@ export function Navbar() {
     <>
       <nav className="fixed top-5 left-1/2 -translate-x-1/2 w-[95%] md:w-[90%] max-w-7xl z-50 glass-panel rounded-full px-4 md:px-8 py-[3px] shadow-lg">
         <div className="flex items-center justify-between">
+          {/* App Logo */}
           <Link href="/">
             <Image
               src="/pass-route-logo.png"
               alt="logo"
               width={170}
               height={150}
-              className="object-contain border border-red-500"
+              className="object-contain"
             />
           </Link>
 

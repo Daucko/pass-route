@@ -33,7 +33,7 @@ export default function SignUpPage() {
                   'w-full bg-gradient-to-r from-neon-blue to-neon-purple text-white py-3 rounded-full font-semibold shadow-lg shadow-purple-500/40 hover:scale-105 transition-all duration-300',
                 formFieldInput:
                   'bg-white/5 border border-white/10 text-white placeholder:text-muted-foreground focus:border-neon-blue focus:shadow-[0_0_15px_rgba(0,240,255,0.2)]',
-                formFieldLabel: 'text-white',
+                formFieldLabel: 'text-white/80',
                 footerActionLink: 'text-neon-blue hover:text-neon-blue/80',
               },
             }}
