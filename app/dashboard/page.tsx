@@ -9,6 +9,16 @@ import { SubjectProgress } from '@/components/features/subject-progress';
 import { DailyChallenge } from '@/components/features/daily-challenge';
 import { RecentActivity } from '@/components/features/recent-activities';
 
+interface Session {
+  id: string;
+  subject: string;
+  mode: string;
+  questionsCount: number;
+  correctCount: number;
+  xpEarned: number;
+  createdAt: string;
+}
+
 interface UserStats {
   user: {
     totalXP: number;
@@ -24,7 +34,7 @@ interface UserStats {
     nextLevelXP: number;
     progress: number;
   };
-  recentSessions: any[];
+  recentSessions: Session[];
   subjectMastery: Array<{
     name: string;
     progress: number;
@@ -35,7 +45,6 @@ interface UserStats {
 export default function Dashboard() {
   const { user } = useUser();
   const [stats, setStats] = useState<UserStats | null>(null);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function fetchStats() {
@@ -47,8 +56,6 @@ export default function Dashboard() {
         }
       } catch (error) {
         console.error('Error fetching stats:', error);
-      } finally {
-        setLoading(false);
       }
     }
 

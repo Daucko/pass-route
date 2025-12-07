@@ -11,7 +11,6 @@ import {
   faClock,
   faGraduationCap,
   faRotateRight,
-  faPlay,
   faChartLine,
   faPlus,
   faChartSimple,

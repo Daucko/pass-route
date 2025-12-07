@@ -12,8 +12,6 @@ import {
   faBook,
   faAtom,
   faFlask,
-  faCheck,
-  faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { SessionSummary } from './session-summary';
 
@@ -54,7 +52,6 @@ const subjectIcons = {
 export function QuestionView({
   selectedSubject,
   isActive,
-  onEndSession,
   onClose,
 }: QuestionViewProps) {
   const [questions, setQuestions] = useState<Question[]>([]);
