@@ -74,15 +74,15 @@ export function DailyChallenge({ streak = 0 }: DailyChallengeProps) {
         {/* Progress Stats */}
         <div className="grid grid-cols-3 gap-4 text-center">
           <div className="bg-white/5 rounded-lg p-3">
-            <div className="text-2xl font-bold text-neon-blue mb-1">24</div>
+            <div className="text-sm lg:text-2xl font-bold text-neon-blue mb-1">24</div>
             <div className="text-xs text-muted-foreground">Completed</div>
           </div>
           <div className="bg-white/5 rounded-lg p-3">
-            <div className="text-2xl font-bold text-neon-green mb-1">85%</div>
+            <div className="text-sm lg:text-2xl font-bold text-neon-green mb-1">85%</div>
             <div className="text-xs text-muted-foreground">Success Rate</div>
           </div>
           <div className="bg-white/5 rounded-lg p-3">
-            <div className="text-2xl font-bold text-neon-purple mb-1">{streak}</div>
+            <div className="text-sm lg:text-2xl font-bold text-neon-purple mb-1">{streak}</div>
             <div className="text-xs text-muted-foreground">Streak</div>
           </div>
         </div>

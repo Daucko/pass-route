@@ -9,6 +9,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faSearch, faBell } from '@fortawesome/free-solid-svg-icons';
 import { LevelBadge } from '@/components/features/level-badge';
 import { XPProgressBar } from '@/components/features/xp-progress-bar';
+import Image from 'next/image';
 
 const navigation = [
   { name: 'Home', href: '/', icon: 'fa-solid fa-home' },
@@ -130,10 +131,14 @@ export function Sidebar() {
         )}
       >
         <div>
-          <div className="mb-8 lg:mb-12 pl-2.5">
-            <span className="logo-text text-lg lg:text-xl font-bold">
-              Deploy <i className="fa-solid fa-rocket" />
-            </span>
+          <div className="mb-3 lg:mb-5 pl-2.5">
+            <Image
+              src="/pass-route-logo.png"
+              alt="logo"
+              width={170}
+              height={150}
+              className="object-contain max-w-[80px] md:max-w-[120px] lg:max-w-[170px]"
+            />
           </div>
 
           <nav className="flex flex-col gap-2 flex-1">
