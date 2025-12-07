@@ -65,7 +65,7 @@ export function Sidebar() {
       {/* Mobile Hamburger Button */}
       <button
         onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-        className="lg:hidden fixed top-6 left-4 z-50 w-12 h-12 flex items-center justify-center glass-panel rounded-full text-white hover:text-neon-blue transition-colors shadow-lg"
+        className="lg:hidden fixed top-6 left-4 z-50 p-2 text-white hover:text-neon-blue transition-colors"
         aria-label="Toggle sidebar"
       >
         <FontAwesomeIcon

@@ -211,148 +211,154 @@ export function QuestionView({
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center p-12 text-white/50">
-        <div className="animate-spin h-8 w-8 border-4 border-neon-blue border-t-transparent rounded-full mr-4"></div>
-        Loading questions...
+      <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="flex items-center justify-center p-12 text-white/50 bg-[#0A0A0F] rounded-2xl border border-white/5">
+          <div className="animate-spin h-8 w-8 border-4 border-neon-blue border-t-transparent rounded-full mr-4"></div>
+          Loading questions...
+        </div>
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-white/50">
-        <p>No questions found for this subject.</p>
-        <button onClick={onClose} className="mt-4 text-neon-blue hover:underline">
-          Go Back
-        </button>
+      <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="flex flex-col items-center justify-center p-12 text-white/50 bg-[#0A0A0F] rounded-2xl border border-white/5">
+          <p>No questions found for this subject.</p>
+          <button onClick={onClose} className="mt-4 text-neon-blue hover:underline">
+            Go Back
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex flex-col h-full bg-[#0A0A0F] rounded-2xl border border-white/5 overflow-hidden">
-      {/* Header */}
-      <div className="p-6 border-b border-white/10 flex justify-between items-center shrink-0">
-        <div className="flex items-center gap-4">
-          <div className="h-10 w-10 rounded-xl bg-neon-blue/10 flex items-center justify-center text-neon-blue">
-            {selectedSubject && subjectIcons[selectedSubject as keyof typeof subjectIcons] && (
-              <FontAwesomeIcon icon={subjectIcons[selectedSubject as keyof typeof subjectIcons]} />
-            )}
+    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in duration-200">
+      <div className="w-full max-w-5xl h-[85vh] flex flex-col bg-[#0A0A0F] rounded-2xl border border-white/5 overflow-hidden shadow-2xl shadow-neon-blue/10 animate-in zoom-in-95 duration-200">
+        {/* Header */}
+        <div className="p-6 border-b border-white/10 flex justify-between items-center shrink-0">
+          <div className="flex items-center gap-4">
+            <div className="h-10 w-10 rounded-xl bg-neon-blue/10 flex items-center justify-center text-neon-blue">
+              {selectedSubject && subjectIcons[selectedSubject as keyof typeof subjectIcons] && (
+                <FontAwesomeIcon icon={subjectIcons[selectedSubject as keyof typeof subjectIcons]} />
+              )}
+            </div>
+            <div>
+              <h2 className="text-lg font-bold text-white">{selectedSubject}</h2>
+              <div className="flex items-center gap-2 text-sm text-white/50">
+                <span className="bg-white/5 px-2 py-0.5 rounded text-xs">Practice Mode</span>
+              </div>
+            </div>
           </div>
-          <div>
-            <h2 className="text-lg font-bold text-white">{selectedSubject}</h2>
-            <div className="flex items-center gap-2 text-sm text-white/50">
-              <span className="bg-white/5 px-2 py-0.5 rounded text-xs">Practice Mode</span>
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 text-white/70 font-mono">
+              <FontAwesomeIcon icon={faClock} className="text-neon-purple" />
+              {formatTime(time)}
             </div>
           </div>
         </div>
-        <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 text-white/70 font-mono">
-            <FontAwesomeIcon icon={faClock} className="text-neon-purple" />
-            {formatTime(time)}
-          </div>
+
+        {/* Progress Bar */}
+        <div className="h-1 bg-white/5">
+          <div
+            className="h-full bg-gradient-to-r from-neon-blue to-neon-purple transition-all duration-300"
+            style={{ width: `${progress}%` }}
+          />
         </div>
-      </div>
 
-      {/* Progress Bar */}
-      <div className="h-1 bg-white/5">
-        <div
-          className="h-full bg-gradient-to-r from-neon-blue to-neon-purple transition-all duration-300"
-          style={{ width: `${progress}%` }}
-        />
-      </div>
+        {/* Question Content */}
+        <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
+          <div className="max-w-3xl mx-auto space-y-8">
+            <div className="space-y-4">
+              <span className="text-neon-blue font-mono text-sm">
+                Question {currentQuestionIndex + 1} of {totalQuestions}
+              </span>
+              <h3 className="text-xl md:text-2xl font-medium text-white leading-relaxed">
+                {currentQuestion.text}
+              </h3>
+            </div>
 
-      {/* Question Content */}
-      <div className="flex-1 p-8 overflow-y-auto custom-scrollbar">
-        <div className="max-w-3xl mx-auto space-y-8">
-          <div className="space-y-4">
-            <span className="text-neon-blue font-mono text-sm">
-              Question {currentQuestionIndex + 1} of {totalQuestions}
-            </span>
-            <h3 className="text-xl md:text-2xl font-medium text-white leading-relaxed">
-              {currentQuestion.text}
-            </h3>
-          </div>
-
-          <div className="grid gap-4">
-            {currentQuestion.options.map((option) => (
-              <button
-                key={option.id}
-                onClick={() => handleOptionSelect(option.id)}
-                className={cn(
-                  'w-full p-6 rounded-xl border text-left transition-all duration-200 group relative overflow-hidden',
-                  selectedOption === option.id
-                    ? 'bg-neon-blue/10 border-neon-blue text-white'
-                    : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
-                )}
-              >
-                <div className="flex items-center gap-4 relative z-10">
-                  <div
-                    className={cn(
-                      'w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-colors',
-                      selectedOption === option.id
-                        ? 'border-neon-blue bg-neon-blue text-white'
-                        : 'border-white/20 text-white/40 group-hover:border-white/40'
-                    )}
-                  >
-                    {option.id.toUpperCase()}
+            <div className="grid gap-4">
+              {currentQuestion.options.map((option) => (
+                <button
+                  key={option.id}
+                  onClick={() => handleOptionSelect(option.id)}
+                  className={cn(
+                    'w-full p-6 rounded-xl border text-left transition-all duration-200 group relative overflow-hidden',
+                    selectedOption === option.id
+                      ? 'bg-neon-blue/10 border-neon-blue text-white'
+                      : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20'
+                  )}
+                >
+                  <div className="flex items-center gap-4 relative z-10">
+                    <div
+                      className={cn(
+                        'w-8 h-8 rounded-full border-2 flex items-center justify-center text-sm font-bold transition-colors',
+                        selectedOption === option.id
+                          ? 'border-neon-blue bg-neon-blue text-white'
+                          : 'border-white/20 text-white/40 group-hover:border-white/40'
+                      )}
+                    >
+                      {option.id.toUpperCase()}
+                    </div>
+                    <span className="text-lg">{option.text}</span>
                   </div>
-                  <span className="text-lg">{option.text}</span>
-                </div>
-              </button>
-            ))}
+                </button>
+              ))}
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Footer Actions */}
-      <div className="p-6 border-t border-white/10 flex justify-between items-center shrink-0">
-        <button
-          onClick={handleEndSession}
-          className="px-6 py-3 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-full font-semibold transition-colors duration-200"
-        >
-          End Session
-        </button>
-
-        <div className="flex items-center gap-4">
+        {/* Footer Actions */}
+        <div className="p-6 border-t border-white/10 flex justify-between items-center shrink-0">
           <button
-            onClick={handlePreviousQuestion}
-            disabled={currentQuestionIndex === 0 || isLoading}
-            className={cn(
-              'px-6 py-3 rounded-full font-semibold transition-colors duration-200 flex items-center gap-2',
-              (currentQuestionIndex === 0 || isLoading)
-                ? 'bg-white/5 text-muted-foreground cursor-not-allowed'
-                : 'bg-white/5 hover:bg-white/10 text-white'
-            )}
+            onClick={handleEndSession}
+            className="px-6 py-3 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-full font-semibold transition-colors duration-200"
           >
-            <FontAwesomeIcon icon={faArrowLeft} />
-            Previous
+            End Session
           </button>
 
-          <button
-            onClick={handleNextQuestion}
-            disabled={isLoading}
-            className={cn(
-              'px-6 py-3 rounded-full font-semibold transition-colors duration-200 flex items-center gap-2',
-              isLoading
-                ? 'bg-neon-blue/50 text-white/50 cursor-not-allowed'
-                : 'bg-gradient-to-r from-neon-blue to-neon-purple text-white hover:shadow-lg hover:shadow-purple-500/40'
-            )}
-          >
-            {currentQuestionIndex === totalQuestions - 1 ? 'Finish' : 'Next'}
-            <FontAwesomeIcon icon={faArrowRight} />
-          </button>
+          <div className="flex items-center gap-4">
+            <button
+              onClick={handlePreviousQuestion}
+              disabled={currentQuestionIndex === 0 || isLoading}
+              className={cn(
+                'px-6 py-3 rounded-full font-semibold transition-colors duration-200 flex items-center gap-2',
+                (currentQuestionIndex === 0 || isLoading)
+                  ? 'bg-white/5 text-muted-foreground cursor-not-allowed'
+                  : 'bg-white/5 hover:bg-white/10 text-white'
+              )}
+            >
+              <FontAwesomeIcon icon={faArrowLeft} />
+              Previous
+            </button>
+
+            <button
+              onClick={handleNextQuestion}
+              disabled={isLoading}
+              className={cn(
+                'px-6 py-3 rounded-full font-semibold transition-colors duration-200 flex items-center gap-2',
+                isLoading
+                  ? 'bg-neon-blue/50 text-white/50 cursor-not-allowed'
+                  : 'bg-gradient-to-r from-neon-blue to-neon-purple text-white hover:shadow-lg hover:shadow-purple-500/40'
+              )}
+            >
+              {currentQuestionIndex === totalQuestions - 1 ? 'Finish' : 'Next'}
+              <FontAwesomeIcon icon={faArrowRight} />
+            </button>
+          </div>
         </div>
-      </div>
 
-      {/* Session Summary Modal */}
-      {showSummary && sessionResult && (
-        <SessionSummary
-          isOpen={showSummary}
-          onClose={handleCloseSummary}
-          sessionData={sessionResult}
-        />
-      )}
+        {/* Session Summary Modal */}
+        {showSummary && sessionResult && (
+          <SessionSummary
+            isOpen={showSummary}
+            onClose={handleCloseSummary}
+            sessionData={sessionResult}
+          />
+        )}
+      </div>
     </div>
   );
 }
