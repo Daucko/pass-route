@@ -123,7 +123,7 @@ export function QuizDemo() {
         </div>
 
         {/* Subjects Grid */}
-        <div className="grid grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
           {subjects.map((subject, index) => (
             <div
               key={index}
