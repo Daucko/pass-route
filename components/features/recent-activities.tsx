@@ -18,8 +18,18 @@ import {
 
 import { formatDistanceToNow } from 'date-fns';
 
+interface Activity {
+  id: string;
+  subject: string;
+  mode: string;
+  questionsCount: number;
+  correctCount: number;
+  xpEarned: number;
+  createdAt: string;
+}
+
 interface RecentActivityProps {
-  activities: any[];
+  activities: Activity[];
   stats: {
     questionsAnswered: number; // using this for "Today" stat as a placeholder or real daily count if available
     correctAnswers: number;
