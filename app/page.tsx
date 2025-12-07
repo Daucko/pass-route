@@ -93,12 +93,16 @@ function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Brand Section */}
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <span className="logo-text text-xl font-bold">
-                Deploy <i className="fa-solid fa-rocket" />
-              </span>
-            </div>
-            <p className="text-muted-foreground text-sm mb-4">
+            <Link href="/">
+              <Image
+                src="/pass-route-logo.png"
+                alt="logo"
+                width={80}
+                height={80}
+                className="object-contain mb-2"
+              />
+            </Link>
+            <p className="text-muted-foreground text-sm mb-2">
               Master your exams with AI-powered precision. Personalized study plans and real-time feedback.
             </p>
             <div className="flex gap-3">
