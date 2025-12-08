@@ -16,6 +16,7 @@ import {
   faXmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { SessionSummary } from './session-summary';
+import DOMPurify from 'isomorphic-dompurify';
 
 interface Question {
   id: number;
@@ -317,6 +318,12 @@ export function QuestionView({
     );
   }
 
+  const sanitize = (html: string) =>
+    DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['b', 'strong', 'i', 'em', 'u', 'br', 'sub', 'sup'],
+      ALLOWED_ATTR: [],
+    });
+
   if (questions.length === 0) {
     return (
       <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
@@ -384,7 +391,7 @@ export function QuestionView({
                 Question {currentQuestionIndex + 1} of {totalQuestions}
               </span>
               <h3 className="text-xl md:text-2xl font-medium text-white leading-relaxed">
-                {currentQuestion.text}
+                <span dangerouslySetInnerHTML={{ __html: sanitize(currentQuestion.text) }} />
               </h3>
             </div>
             <div className="grid gap-4">
@@ -429,7 +436,10 @@ export function QuestionView({
                         >
                           {option.id.toUpperCase()}
                         </div>
-                        <span className="text-lg">{option.text}</span>
+                        <span
+                          className="text-lg"
+                          dangerouslySetInnerHTML={{ __html: sanitize(option.text) }}
+                        />
                       </div>
                       {isSelected && isCorrect && (
                         <span className="text-neon-green font-bold flex items-center gap-2">
@@ -477,7 +487,7 @@ export function QuestionView({
                 ) : (
                   <div
                     className="text-blue-100/90 leading-relaxed text-sm"
-                    dangerouslySetInnerHTML={{ __html: explanation || '' }}
+                    dangerouslySetInnerHTML={{ __html: explanation ? sanitize(explanation) : '' }}
                   />
                 )}
               </div>
