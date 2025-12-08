@@ -53,19 +53,22 @@ model Session {
 }
 
 model Question {
-  id            String   @id @default(cuid())
-  subject       String
-  questionText  String   @map("question_text")
-  optionA       String   @map("option_a")
-  optionB       String   @map("option_b")
-  optionC       String   @map("option_c")
-  optionD       String   @map("option_d")
-  correctOption String   @map("correct_option") // 'a', 'b', 'c', or 'd'
-  year          Int?
-  examType      String?  @map("exam_type") // 'utme', 'wassce', 'post-utme'
-  explanation   String?  @map("explanation") @db.Text
-  explanationImage String? @map("explanation_image")
-  createdAt     DateTime @default(now()) @map("created_at")
+  id               String    @id @default(cuid())
+  subject          String
+  questionText     String    @map("question_text")
+  optionA          String    @map("option_a")
+  optionB          String    @map("option_b")
+  optionC          String    @map("option_c")
+  optionD          String    @map("option_d")
+  correctOption    String    @map("correct_option") // 'a', 'b', 'c', or 'd'
+  year             Int?
+  examType         String?   @map("exam_type") // 'utme', 'wassce', 'post-utme'
+  explanation      String?   @map("explanation") @db.Text
+  explanationImage String?   @map("explanation_image")
+  keyConcepts      String[]  @default([]) @map("key_concepts")
+  commonMistakes   String[]  @default([]) @map("common_mistakes")
+  lastExplainedAt  DateTime? @map("last_explained_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
   
   @@index([subject])
   @@index([examType])
