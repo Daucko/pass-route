@@ -69,6 +69,16 @@ export async function generateExplanation(
   }
 }
 
+console.log('=== AI-SERVICE LOADING ===');
+console.log('NODE_ENV:', process.env.NODE_ENV);
+console.log('GROQ_API_KEY exists in ai-service:', !!process.env.GROQ_API_KEY);
+console.log('GROQ_API_KEY length:', process.env.GROQ_API_KEY?.length);
+
+if (!process.env.GROQ_API_KEY) {
+  console.error('❌ GROQ_API_KEY is NOT loaded in ai-service.ts');
+  console.log('Available env vars:', Object.keys(process.env).join(', '));
+}
+
 interface TextExplanationParams {
   questionText: string;
   options: Array<{
@@ -217,7 +227,7 @@ async function generateExplanationImage(
 async function extractKeyConcepts(explanation: string): Promise<string[]> {
   try {
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.2-1b-preview', // Use lightest model for this
+      model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'system',
