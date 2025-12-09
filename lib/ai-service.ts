@@ -51,7 +51,6 @@ export async function generateExplanation(
     const imageUrl = await generateExplanationImage({
       questionText,
       subject,
-      explanation,
     });
 
     // Extract key concepts
@@ -70,13 +69,21 @@ export async function generateExplanation(
   }
 }
 
-async function generateTextExplanation(params: {
+interface TextExplanationParams {
   questionText: string;
-  options: any[];
+  options: Array<{
+    id: string;
+    text: string;
+    correct: boolean;
+  }>;
   correctAnswer: string;
   subject: string;
   userLevel: string;
-}): Promise<string> {
+}
+
+async function generateTextExplanation(
+  params: TextExplanationParams
+): Promise<string> {
   const { questionText, options, correctAnswer, subject, userLevel } = params;
 
   const systemPrompt = `You are an expert ${subject} tutor with 20 years of experience. Explain why the correct answer is correct in a clear, educational way suitable for a ${userLevel} level student. Break down the reasoning step by step. Use simple language and provide examples if helpful.`;
@@ -146,8 +153,8 @@ Make it educational but not too technical. Target level: ${userLevel}.
       const fallbackText =
         fallbackCompletion.choices[0]?.message?.content || '';
       return `<b>Explanation:</b><br/><br/>${fallbackText}`;
-    } catch (fallbackError) {
-      console.error('Fallback also failed:', fallbackError);
+    } catch {
+      console.error('Fallback also failed');
       throw error;
     }
   }
@@ -169,11 +176,14 @@ function formatExplanation(text: string, correctAnswer: string): string {
   return formatted;
 }
 
-async function generateExplanationImage(params: {
+interface ImageGenerationParams {
   questionText: string;
   subject: string;
-  explanation: string;
-}): Promise<string> {
+}
+
+async function generateExplanationImage(
+  params: ImageGenerationParams
+): Promise<string> {
   const { questionText, subject } = params;
 
   try {
@@ -249,7 +259,6 @@ async function extractKeyConcepts(explanation: string): Promise<string[]> {
 function extractConceptsManually(text: string): string[] {
   // Simple keyword extraction
   const concepts: string[] = [];
-  const words = text.toLowerCase().split(/\s+/);
 
   const conceptKeywords = [
     'formula',
@@ -285,7 +294,7 @@ function extractConceptsManually(text: string): string[] {
 }
 
 function generateCommonMistakes(
-  options: any[],
+  options: Array<{ id: string; text: string; correct: boolean }>,
   correctAnswer: string
 ): string[] {
   const incorrectOptions = options.filter((opt) => !opt.correct);
@@ -362,7 +371,7 @@ export async function quickExplain(
     return (
       completion.choices[0]?.message?.content || 'This is the correct answer.'
     );
-  } catch (error) {
+  } catch {
     return 'This answer follows the correct principles.';
   }
 }
