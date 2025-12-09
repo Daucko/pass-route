@@ -124,7 +124,7 @@ Make it educational but not too technical. Target level: ${userLevel}.
   try {
     // Groq offers free access to certain models like llama-3.2-3b-preview
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.2-3b-preview', // Free model from Groq
+      model: 'llama-3.3-70b-versatile', // Free model from Groq
       // Other free models you can try:
       // - 'llama-3.2-1b-preview' (fastest)
       // - 'llama-3.2-3b-preview' (good balance)
@@ -148,7 +148,7 @@ Make it educational but not too technical. Target level: ${userLevel}.
     // Try with a simpler model if the first fails
     try {
       const fallbackCompletion = await groq.chat.completions.create({
-        model: 'llama-3.2-1b-preview', // Simpler model
+        model: 'llama-3.3-70b-versatile', // Simpler model
         messages: [
           { role: 'system', content: 'Explain why the answer is correct.' },
           {
@@ -367,7 +367,7 @@ export async function quickExplain(
 ): Promise<string> {
   try {
     const completion = await groq.chat.completions.create({
-      model: 'llama-3.2-1b-preview',
+      model: 'llama-3.3-70b-versatile',
       messages: [
         {
           role: 'user',
