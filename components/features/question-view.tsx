@@ -55,25 +55,6 @@ const subjectIcons = {
   Chemistry: faFlask,
 };
 
-type ExplainApiSuccess =
-  | {
-      ok: true;
-      // server may return a flatter shape
-      explanation?: string;
-      keyConcepts?: string[];
-      commonMistakes?: string[];
-      // or a normalized one
-      text?: string;
-      model?: string;
-    }
-  | {
-      // legacy shape without ok field
-      explanation: string;
-      keyConcepts?: string[];
-      commonMistakes?: string[];
-      model?: string;
-    };
-
 export function QuestionView({
   selectedSubject,
   isActive,
@@ -191,18 +172,18 @@ export function QuestionView({
           }),
         });
 
-        const data = await response.json().catch(() => ({} as any));
+        const data = await response.json();
 
         if (!response.ok) {
-          const msg =
-            (data && (data.error || data.message)) ||
+          const errorMessage =
+            data?.error ||
+            data?.message ||
             `Explain API failed (${response.status})`;
-          throw new Error(msg);
+          throw new Error(errorMessage);
         }
 
         // Accept either legacy shape or normalized ok/text shape
-        const text =
-          (data?.explanation as string) || (data?.text as string) || '';
+        const text = data?.explanation || data?.text || '';
 
         const concepts: string[] = Array.isArray(data?.keyConcepts)
           ? data.keyConcepts
@@ -230,9 +211,13 @@ export function QuestionView({
           next[currentQuestionIndex] = q;
           return next;
         });
-      } catch (error: any) {
+      } catch (error: unknown) {
         console.error('Error fetching explanation:', error);
-        setExplainError(error?.message || 'Failed to fetch explanation');
+        const errorMessage =
+          error instanceof Error
+            ? error.message
+            : 'Failed to fetch explanation';
+        setExplainError(errorMessage);
       } finally {
         setIsExplaining(false);
       }
@@ -322,7 +307,7 @@ export function QuestionView({
         }),
       });
 
-      const data = await res.json().catch(() => ({}));
+      const data = await res.json();
       if (res.ok) {
         setSessionResult({
           subject: selectedSubject || 'Unknown',
@@ -340,8 +325,8 @@ export function QuestionView({
       } else {
         console.error('Failed to save session', data);
       }
-    } catch (e) {
-      console.error('Failed to save session', e);
+    } catch (error) {
+      console.error('Failed to save session', error);
     }
   };
 
