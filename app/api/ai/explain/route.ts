@@ -2,6 +2,9 @@ import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { generateExplanation } from '@/lib/ai-service';
 
+console.log('GROQ_API_KEY present:', Boolean(process.env.GROQ_API_KEY));
+
+
 // Simple in-memory rate limiter
 class RateLimiter {
   private requests = new Map<string, number[]>();

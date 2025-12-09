@@ -1,4 +1,3 @@
-// components/practice/question-view.tsx
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -56,6 +55,25 @@ const subjectIcons = {
   Chemistry: faFlask,
 };
 
+type ExplainApiSuccess =
+  | {
+      ok: true;
+      // server may return a flatter shape
+      explanation?: string;
+      keyConcepts?: string[];
+      commonMistakes?: string[];
+      // or a normalized one
+      text?: string;
+      model?: string;
+    }
+  | {
+      // legacy shape without ok field
+      explanation: string;
+      keyConcepts?: string[];
+      commonMistakes?: string[];
+      model?: string;
+    };
+
 export function QuestionView({
   selectedSubject,
   isActive,
@@ -77,16 +95,19 @@ export function QuestionView({
   const [isExplaining, setIsExplaining] = useState(false);
   const [keyConcepts, setKeyConcepts] = useState<string[]>([]);
   const [commonMistakes, setCommonMistakes] = useState<string[]>([]);
+  const [explainError, setExplainError] = useState<string | null>(null);
 
   // Timer
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: NodeJS.Timeout | undefined;
     if (isActive && !showSummary && questions.length > 0) {
       interval = setInterval(() => {
         setTime((prev) => prev + 1);
       }, 1000);
     }
-    return () => clearInterval(interval);
+    return () => {
+      if (interval) clearInterval(interval);
+    };
   }, [isActive, showSummary, questions.length]);
 
   // Fetch Questions
@@ -96,8 +117,12 @@ export function QuestionView({
         setIsLoading(true);
         try {
           const res = await fetch(
-            `/api/questions?subject=${selectedSubject}&limit=10`
+            `/api/questions?subject=${encodeURIComponent(
+              selectedSubject
+            )}&limit=10`
           );
+          if (!res.ok)
+            throw new Error(`Failed to fetch questions (${res.status})`);
           const data = await res.json();
           if (data.questions) {
             setQuestions(data.questions);
@@ -108,6 +133,8 @@ export function QuestionView({
             setKeyConcepts([]);
             setCommonMistakes([]);
             setTime(0);
+          } else {
+            throw new Error('No questions in response');
           }
         } catch (error) {
           console.error('Failed to fetch questions:', error);
@@ -123,6 +150,7 @@ export function QuestionView({
   // Reset explanation when changing questions
   useEffect(() => {
     setExplanation(null);
+    setExplainError(null);
     setIsExplaining(false);
     setKeyConcepts([]);
     setCommonMistakes([]);
@@ -149,6 +177,7 @@ export function QuestionView({
       setCommonMistakes(currentQuestion.commonMistakes || []);
     } else {
       setIsExplaining(true);
+      setExplainError(null);
       try {
         const response = await fetch('/api/ai/explain', {
           method: 'POST',
@@ -162,20 +191,48 @@ export function QuestionView({
           }),
         });
 
-        if (response.ok) {
-          const data = await response.json();
-          setExplanation(data.explanation);
-          setKeyConcepts(data.keyConcepts || []);
-          setCommonMistakes(data.commonMistakes || []);
-          // Update the local question object so we don't fetch again if they revisit
-          const updatedQuestions = [...questions];
-          updatedQuestions[currentQuestionIndex].explanation = data.explanation;
-          updatedQuestions[currentQuestionIndex].keyConcepts = data.keyConcepts || [];
-          updatedQuestions[currentQuestionIndex].commonMistakes = data.commonMistakes || [];
-          setQuestions(updatedQuestions);
+        const data = await response.json().catch(() => ({} as any));
+
+        if (!response.ok) {
+          const msg =
+            (data && (data.error || data.message)) ||
+            `Explain API failed (${response.status})`;
+          throw new Error(msg);
         }
-      } catch (error) {
+
+        // Accept either legacy shape or normalized ok/text shape
+        const text =
+          (data?.explanation as string) || (data?.text as string) || '';
+
+        const concepts: string[] = Array.isArray(data?.keyConcepts)
+          ? data.keyConcepts
+          : [];
+        const mistakes: string[] = Array.isArray(data?.commonMistakes)
+          ? data.commonMistakes
+          : [];
+
+        if (!text) {
+          // Provide a gentle message in UI if API returned no content
+          setExplainError('No explanation available right now.');
+        }
+
+        setExplanation(text || null);
+        setKeyConcepts(concepts);
+        setCommonMistakes(mistakes);
+
+        // Update the local question immutably so we don't refetch explanation if revisited
+        setQuestions((prev) => {
+          const next = [...prev];
+          const q = { ...next[currentQuestionIndex] };
+          q.explanation = text || q.explanation;
+          if (concepts.length) q.keyConcepts = concepts;
+          if (mistakes.length) q.commonMistakes = mistakes;
+          next[currentQuestionIndex] = q;
+          return next;
+        });
+      } catch (error: any) {
         console.error('Error fetching explanation:', error);
+        setExplainError(error?.message || 'Failed to fetch explanation');
       } finally {
         setIsExplaining(false);
       }
@@ -189,17 +246,19 @@ export function QuestionView({
         const isCorrect =
           currentQ.options.find((opt) => opt.id === selectedOption)?.correct ||
           false;
-        setAnswers({
-          ...answers,
-          [currentQ.id]: { selected: selectedOption, correct: isCorrect },
-        });
+        setAnswers((prev) => ({
+          ...prev,
+          [currentQuestionIndex]: {
+            selected: selectedOption,
+            correct: isCorrect,
+          },
+        }));
       }
-
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex((prev) => prev + 1);
         setSelectedOption(null);
       } else {
-        // Last question, ready for end session
+        // Last question, ready for end session (UI handles via Finish button label)
       }
     }
   };
@@ -207,11 +266,11 @@ export function QuestionView({
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
       setCurrentQuestionIndex((prev) => prev - 1);
-      const prevQ = questions[currentQuestionIndex - 1];
       const prevAnswer = answers[currentQuestionIndex - 1];
       setSelectedOption(prevAnswer?.selected || null);
 
       // Show explanation for previously answered question
+      const prevQ = questions[currentQuestionIndex - 1];
       if (prevAnswer && prevQ.explanation) {
         setExplanation(prevQ.explanation);
         setKeyConcepts(prevQ.keyConcepts || []);
@@ -238,7 +297,7 @@ export function QuestionView({
         questions[currentQuestionIndex].options.find(
           (opt) => opt.id === selectedOption
         )?.correct || false;
-      finalAnswers[questions[currentQuestionIndex].id] = {
+      finalAnswers[currentQuestionIndex] = {
         selected: selectedOption,
         correct: isCorrect,
       };
@@ -263,8 +322,7 @@ export function QuestionView({
         }),
       });
 
-      const data = await res.json();
-
+      const data = await res.json().catch(() => ({}));
       if (res.ok) {
         setSessionResult({
           subject: selectedSubject || 'Unknown',
@@ -279,6 +337,8 @@ export function QuestionView({
           streakBonus: data.streakBonus,
         });
         setShowSummary(true);
+      } else {
+        console.error('Failed to save session', data);
       }
     } catch (e) {
       console.error('Failed to save session', e);
@@ -299,7 +359,6 @@ export function QuestionView({
 
   const currentQuestion = questions[currentQuestionIndex];
   const totalQuestions = questions.length;
-  // Progress percentage
   const progress =
     totalQuestions > 0
       ? ((currentQuestionIndex + 1) / totalQuestions) * 100
@@ -391,7 +450,11 @@ export function QuestionView({
                 Question {currentQuestionIndex + 1} of {totalQuestions}
               </span>
               <h3 className="text-xl md:text-2xl font-medium text-white leading-relaxed">
-                <span dangerouslySetInnerHTML={{ __html: sanitize(currentQuestion.text) }} />
+                <span
+                  dangerouslySetInnerHTML={{
+                    __html: sanitize(currentQuestion.text),
+                  }}
+                />
               </h3>
             </div>
             <div className="grid gap-4">
@@ -438,7 +501,9 @@ export function QuestionView({
                         </div>
                         <span
                           className="text-lg"
-                          dangerouslySetInnerHTML={{ __html: sanitize(option.text) }}
+                          dangerouslySetInnerHTML={{
+                            __html: sanitize(option.text),
+                          }}
                         />
                       </div>
                       {isSelected && isCorrect && (
@@ -461,8 +526,9 @@ export function QuestionView({
                 );
               })}
             </div>
+
             {/* AI Explanation Section */}
-            {(explanation || isExplaining) && (
+            {(explanation || isExplaining || explainError) && (
               <div className="mt-8 p-6 bg-blue-500/10 border border-blue-500/30 rounded-2xl animate-in fade-in slide-in-from-bottom-4 duration-500">
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-8 h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
@@ -484,15 +550,26 @@ export function QuestionView({
                     <div className="h-4 bg-blue-400/10 rounded w-full animate-pulse"></div>
                     <div className="h-4 bg-blue-400/10 rounded w-5/6 animate-pulse"></div>
                   </div>
+                ) : explainError ? (
+                  <div className="text-blue-200/80 text-sm">
+                    {explainError}
+                    <div className="text-blue-300/60 mt-1">
+                      If this persists, check the server logs to verify the AI
+                      service and env configuration.
+                    </div>
+                  </div>
                 ) : (
                   <div
                     className="text-blue-100/90 leading-relaxed text-sm"
-                    dangerouslySetInnerHTML={{ __html: explanation ? sanitize(explanation) : '' }}
+                    dangerouslySetInnerHTML={{
+                      __html: explanation ? sanitize(explanation) : '',
+                    }}
                   />
                 )}
               </div>
             )}
-            {/* Add this section after the explanation */}
+
+            {/* Key Concepts */}
             {explanation && keyConcepts && keyConcepts.length > 0 && (
               <div className="mt-6 p-4 bg-purple-500/10 border border-purple-500/30 rounded-xl">
                 <h5 className="text-sm font-semibold text-purple-300 mb-2">
@@ -510,6 +587,8 @@ export function QuestionView({
                 </div>
               </div>
             )}
+
+            {/* Common Mistakes */}
             {explanation && commonMistakes && commonMistakes.length > 0 && (
               <div className="mt-4 p-4 bg-amber-500/10 border border-amber-500/30 rounded-xl">
                 <h5 className="text-sm font-semibold text-amber-300 mb-2">
