@@ -3,14 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  faCheckCircle,
-  faXmarkCircle,
-  faTrophy,
-  faClock,
-  faFire,
-  faArrowUp,
-} from '@fortawesome/free-solid-svg-icons';
+import { faTrophy, faFire, faArrowUp } from '@fortawesome/free-solid-svg-icons';
 
 interface SessionSummaryProps {
   isOpen: boolean;
