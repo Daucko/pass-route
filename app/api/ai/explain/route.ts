@@ -4,7 +4,6 @@ import { generateExplanation } from '@/lib/ai-service';
 
 console.log('GROQ_API_KEY present:', Boolean(process.env.GROQ_API_KEY));
 
-
 // Simple in-memory rate limiter
 class RateLimiter {
   private requests = new Map<string, number[]>();
@@ -102,8 +101,6 @@ function getClientIP(request: NextRequest): string {
 }
 
 export async function POST(request: NextRequest) {
-  let parsedBody: any = null;
-
   // Apply rate limiting
   const clientIP = getClientIP(request);
 
@@ -146,7 +143,6 @@ export async function POST(request: NextRequest) {
 
   try {
     const body = await request.json();
-    parsedBody = body;
     const {
       questionId,
       questionText,
@@ -217,7 +213,9 @@ export async function POST(request: NextRequest) {
       {
         explanation: `
         The correct answer is **${
-          parsedBody?.correctAnswer?.toUpperCase() || 'Unknown'
+          (
+            error as { body?: { correctAnswer?: string } }
+          )?.body?.correctAnswer?.toUpperCase() || 'Unknown'
         }**.
         <br/><br/>
         While we're experiencing technical difficulties generating a detailed explanation, 
