@@ -16,8 +16,9 @@ import {
   faMoneyBillTrendUp,
   faLandmark,
 } from '@fortawesome/free-solid-svg-icons';
-import { QuestionView } from '@/components/features/question-view';
+import { QuestionViewPage } from '@/components/features/question-view-page';
 import { useUser } from '@clerk/nextjs';
+import { useRouter } from 'next/navigation';
 
 const subjects = [
   {
@@ -85,9 +86,11 @@ export default function Practice() {
 
   const modes = ['Practice Mode', 'Timed Mode', 'Mock Exam'];
 
+  // Initialize router in component:
+  const router = useRouter();
+
   const handleSubjectClick = (subjectName: string) => {
-    setSelectedSubject(subjectName);
-    setIsQuestionViewActive(true);
+    router.push(`/practice/${encodeURIComponent(subjectName)}`);
   };
 
   const handleEndSession = () => {
@@ -195,12 +198,12 @@ export default function Practice() {
       </div>
 
       {/* Question View Modal */}
-      <QuestionView
+      {/* <QuestionView
         selectedSubject={selectedSubject}
         isActive={isQuestionViewActive}
         onEndSession={handleEndSession}
         onClose={handleCloseQuestionView}
-      />
+      /> */}
     </>
   );
 }
