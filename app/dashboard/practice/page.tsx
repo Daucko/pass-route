@@ -16,7 +16,6 @@ import {
   faMoneyBillTrendUp,
   faLandmark,
 } from '@fortawesome/free-solid-svg-icons';
-// import { QuestionViewPage } from '@/components/features/question-view-page';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
@@ -79,28 +78,13 @@ const subjects = [
 
 export default function Practice() {
   const [activeMode, setActiveMode] = useState('Practice Mode');
-  const [selectedSubject, setSelectedSubject] = useState<string | null>(null);
-  const [isQuestionViewActive, setIsQuestionViewActive] = useState(false);
-
   const { user } = useUser();
+  const router = useRouter();
 
   const modes = ['Practice Mode', 'Timed Mode', 'Mock Exam'];
 
-  // Initialize router in component:
-  const router = useRouter();
-
   const handleSubjectClick = (subjectName: string) => {
     router.push(`/dashboard/practice/${encodeURIComponent(subjectName)}`);
-  };
-
-  const handleEndSession = () => {
-    setIsQuestionViewActive(false);
-    setSelectedSubject(null);
-    // You can add additional logic here like saving session results
-  };
-
-  const handleCloseQuestionView = () => {
-    setIsQuestionViewActive(false);
   };
 
   return (
@@ -196,14 +180,6 @@ export default function Practice() {
           ))}
         </div>
       </div>
-
-      {/* Question View Modal */}
-      {/* <QuestionView
-        selectedSubject={selectedSubject}
-        isActive={isQuestionViewActive}
-        onEndSession={handleEndSession}
-        onClose={handleCloseQuestionView}
-      /> */}
     </>
   );
 }

@@ -74,10 +74,7 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
     null
   );
   const [explanation, setExplanation] = useState<string | null>(null);
-  const [explanationImage, setExplanationImage] = useState<string | null>(null);
   const [isExplaining, setIsExplaining] = useState(false);
-  const [keyConcepts, setKeyConcepts] = useState<string[]>([]);
-  const [commonMistakes, setCommonMistakes] = useState<string[]>([]);
   const [explainError, setExplainError] = useState<string | null>(null);
   const [showCalculator, setShowCalculator] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -120,9 +117,8 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
           setAnswers({});
           setSelectedOption(null);
           setExplanation(null);
-          setExplanationImage(null);
-          setKeyConcepts([]);
-          setCommonMistakes([]);
+          setExplainError(null);
+          setIsExplaining(false);
           setTime(0);
         } else {
           throw new Error('No questions in response');
@@ -140,11 +136,8 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
   // Reset explanation when changing questions
   useEffect(() => {
     setExplanation(null);
-    setExplanationImage(null);
     setExplainError(null);
     setIsExplaining(false);
-    setKeyConcepts([]);
-    setCommonMistakes([]);
   }, [currentQuestionIndex]);
 
   const handleOptionSelect = async (optionId: string) => {
@@ -164,9 +157,6 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
     const currentQuestion = questions[currentQuestionIndex];
     if (currentQuestion.explanation) {
       setExplanation(currentQuestion.explanation);
-      setExplanationImage(currentQuestion.explanationImage || null);
-      setKeyConcepts(currentQuestion.keyConcepts || []);
-      setCommonMistakes(currentQuestion.commonMistakes || []);
     } else {
       setIsExplaining(true);
       setExplainError(null);
@@ -194,31 +184,17 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
         }
 
         const text = data?.explanation || data?.text || '';
-        const image = data?.explanationImage || '';
-
-        const concepts: string[] = Array.isArray(data?.keyConcepts)
-          ? data.keyConcepts
-          : [];
-        const mistakes: string[] = Array.isArray(data?.commonMistakes)
-          ? data.commonMistakes
-          : [];
 
         if (!text) {
           setExplainError('No explanation available right now.');
         }
 
         setExplanation(text || null);
-        setExplanationImage(image || null);
-        setKeyConcepts(concepts);
-        setCommonMistakes(mistakes);
 
         setQuestions((prev) => {
           const next = [...prev];
           const q = { ...next[currentQuestionIndex] };
           q.explanation = text || q.explanation;
-          q.explanationImage = image || q.explanationImage;
-          if (concepts.length) q.keyConcepts = concepts;
-          if (mistakes.length) q.commonMistakes = mistakes;
           next[currentQuestionIndex] = q;
           return next;
         });
@@ -266,12 +242,8 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
       const prevQ = questions[currentQuestionIndex - 1];
       if (prevAnswer && prevQ.explanation) {
         setExplanation(prevQ.explanation);
-        setKeyConcepts(prevQ.keyConcepts || []);
-        setCommonMistakes(prevQ.commonMistakes || []);
       } else {
         setExplanation(null);
-        setKeyConcepts([]);
-        setCommonMistakes([]);
       }
     }
   };
