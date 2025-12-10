@@ -10,6 +10,11 @@ import {
   faBook,
   faAtom,
   faFlask,
+  faDna,
+  faChartLine,
+  faBalanceScale,
+  faMoneyBillTrendUp,
+  faLandmark,
 } from '@fortawesome/free-solid-svg-icons';
 import { QuestionView } from '@/components/features/question-view';
 import { useUser } from '@clerk/nextjs';
@@ -38,6 +43,36 @@ const subjects = [
     icon: faFlask,
     topics: '13 Topics • 520+ Questions',
     color: 'neon-glow-pink',
+  },
+  {
+    name: 'Biology',
+    icon: faDna,
+    topics: '15 Topics • 600+ Questions',
+    color: 'neon-glow-teal',
+  },
+  {
+    name: 'Commerce',
+    icon: faChartLine,
+    topics: '10 Topics • 450+ Questions',
+    color: 'neon-glow-orange',
+  },
+  {
+    name: 'Accounting',
+    icon: faBalanceScale,
+    topics: '11 Topics • 480+ Questions',
+    color: 'neon-glow-yellow',
+  },
+  {
+    name: 'Economics',
+    icon: faMoneyBillTrendUp,
+    topics: '9 Topics • 430+ Questions',
+    color: 'neon-glow-emerald',
+  },
+  {
+    name: 'Government',
+    icon: faLandmark,
+    topics: '7 Topics • 380+ Questions',
+    color: 'neon-glow-rose',
   },
 ];
 
@@ -69,7 +104,9 @@ export default function Practice() {
     <>
       <header className="hidden lg:flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-0 mb-6 lg:mb-10">
         <div className="w-full lg:w-auto">
-          <h1 className="text-2xl lg:text-3xl font-bold mb-2">Practice Arena 🎯</h1>
+          <h1 className="text-2xl lg:text-3xl font-bold mb-2">
+            Practice Arena 🎯
+          </h1>
           <p className="text-muted-foreground">
             Sharpen your skills and prepare for the exam.
           </p>
@@ -127,19 +164,28 @@ export default function Practice() {
           ))}
         </div>
 
-        {/* Subjects Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-6">
+        {/* Subjects Grid - Now 3 columns for larger screens */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
           {subjects.map((subject) => (
             <div
               key={subject.name}
               className="glass-card text-center p-6 lg:p-8 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
               onClick={() => handleSubjectClick(subject.name)}
             >
-              <div className={cn('text-3xl lg:text-4xl mb-4 lg:mb-6', subject.color)}>
+              <div
+                className={cn(
+                  'text-3xl lg:text-4xl mb-4 lg:mb-6',
+                  subject.color
+                )}
+              >
                 <FontAwesomeIcon icon={subject.icon} />
               </div>
-              <h3 className="text-lg lg:text-xl font-semibold mb-2 lg:mb-3">{subject.name}</h3>
-              <p className="text-muted-foreground text-sm lg:text-base mb-4 lg:mb-6">{subject.topics}</p>
+              <h3 className="text-lg lg:text-xl font-semibold mb-2 lg:mb-3">
+                {subject.name}
+              </h3>
+              <p className="text-muted-foreground text-sm lg:text-base mb-4 lg:mb-6">
+                {subject.topics}
+              </p>
               <button className="cta-button bg-gradient-to-r from-neon-blue to-neon-purple text-white px-6 lg:px-8 py-2 lg:py-3 rounded-full font-semibold shadow-lg shadow-purple-500/40 hover:scale-105 transition-all duration-300 text-sm lg:text-base">
                 Start
               </button>
