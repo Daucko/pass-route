@@ -159,12 +159,12 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // 1. Check cache in database
+    // 1. Check cache in database - USE TypeScript field names
     const existingQuestion = await prisma.question.findUnique({
       where: { id: questionId },
       select: {
         explanation: true,
-        explanationImage: true,
+        explanationImage: true, // TypeScript field name (maps to explanation_image in DB)
         keyConcepts: true,
         commonMistakes: true,
       },
@@ -174,7 +174,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           explanation: existingQuestion.explanation,
-          explanationImage: existingQuestion.explanationImage,
+          explanationImage: existingQuestion.explanationImage, // Already camelCase
           keyConcepts: existingQuestion.keyConcepts,
           commonMistakes: existingQuestion.commonMistakes,
         },
@@ -192,12 +192,12 @@ export async function POST(request: NextRequest) {
       userLevel: userLevel || 'Intermediate',
     });
 
-    // 3. Save to database for caching
+    // 3. Save to database for caching - USE TypeScript field names
     await prisma.question.update({
       where: { id: questionId },
       data: {
         explanation: aiResponse.explanation,
-        explanationImage: aiResponse.explanationImage,
+        explanationImage: aiResponse.explanationImage, // TypeScript field name
         keyConcepts: aiResponse.keyConcepts,
         commonMistakes: aiResponse.commonMistakes,
         lastExplainedAt: new Date(),
@@ -208,7 +208,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Error generating explanation:', error);
 
-    // Fallback response (still include rate limit headers)
+    // Fallback response
     return NextResponse.json(
       {
         explanation: `
