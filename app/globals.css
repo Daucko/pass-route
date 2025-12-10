@@ -25,6 +25,17 @@
     --input: 0 0% 12%;
     --ring: 174 100% 50%;
     --radius: 0.75rem;
+
+    /* Neon color variables */
+    --neon-blue: #00f0ff;
+    --neon-purple: #bd00ff;
+    --neon-green: #00ff94;
+    --neon-pink: #ff0055;
+    --neon-teal: #00ffc8;
+    --neon-orange: #ff8c00;
+    --neon-yellow: #ffd700;
+    --neon-emerald: #00ff88;
+    --neon-rose: #ff007f;
   }
 }
 
@@ -41,11 +52,13 @@
 
 @layer utilities {
   .mask-gradient {
-    mask-image: linear-gradient(to right,
-        transparent,
-        black 10%,
-        black 90%,
-        transparent);
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      black 10%,
+      black 90%,
+      transparent
+    );
   }
 
   .animate-float-up {
@@ -70,9 +83,11 @@
   }
 
   .bg-radial {
-    background: radial-gradient(circle,
-        var(--tw-gradient-from) 0%,
-        transparent 70%);
+    background: radial-gradient(
+      circle,
+      var(--tw-gradient-from) 0%,
+      transparent 70%
+    );
   }
 
   .line-clamp-3 {
@@ -94,25 +109,50 @@
     @apply bg-gradient-to-r from-white to-gray-400 bg-clip-text text-transparent;
   }
 
-  /* Fix: Replace undefined neon color classes with actual colors */
+  /* Neon glow classes */
   .neon-glow-blue {
-    color: #00f0ff;
+    color: var(--neon-blue);
     filter: drop-shadow(0 0 5px rgba(0, 240, 255, 0.5));
   }
 
   .neon-glow-purple {
-    color: #bd00ff;
+    color: var(--neon-purple);
     filter: drop-shadow(0 0 5px rgba(189, 0, 255, 0.5));
   }
 
   .neon-glow-green {
-    color: #00ff94;
+    color: var(--neon-green);
     filter: drop-shadow(0 0 5px rgba(0, 255, 148, 0.5));
   }
 
   .neon-glow-pink {
-    color: #ff0055;
+    color: var(--neon-pink);
     filter: drop-shadow(0 0 5px rgba(255, 0, 85, 0.5));
+  }
+
+  .neon-glow-teal {
+    color: var(--neon-teal);
+    filter: drop-shadow(0 0 5px rgba(0, 255, 200, 0.5));
+  }
+
+  .neon-glow-orange {
+    color: var(--neon-orange);
+    filter: drop-shadow(0 0 5px rgba(255, 140, 0, 0.5));
+  }
+
+  .neon-glow-yellow {
+    color: var(--neon-yellow);
+    filter: drop-shadow(0 0 5px rgba(255, 215, 0, 0.5));
+  }
+
+  .neon-glow-emerald {
+    color: var(--neon-emerald);
+    filter: drop-shadow(0 0 5px rgba(0, 255, 136, 0.5));
+  }
+
+  .neon-glow-rose {
+    color: var(--neon-rose);
+    filter: drop-shadow(0 0 5px rgba(255, 0, 127, 0.5));
   }
 }
 
