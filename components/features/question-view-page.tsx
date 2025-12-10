@@ -310,7 +310,7 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
 
   const handleCloseSummary = () => {
     setShowSummary(false);
-    router.push('/practice');
+    router.push('/dashboard/practice');
   };
 
   const formatTime = (seconds: number) => {
