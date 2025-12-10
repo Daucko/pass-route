@@ -73,6 +73,7 @@ export function QuestionView({
     null
   );
   const [explanation, setExplanation] = useState<string | null>(null);
+  const [explanationImage, setExplanationImage] = useState<string | null>(null);
   const [isExplaining, setIsExplaining] = useState(false);
   const [keyConcepts, setKeyConcepts] = useState<string[]>([]);
   const [commonMistakes, setCommonMistakes] = useState<string[]>([]);
@@ -111,6 +112,7 @@ export function QuestionView({
             setAnswers({});
             setSelectedOption(null);
             setExplanation(null);
+            setExplanationImage(null);
             setKeyConcepts([]);
             setCommonMistakes([]);
             setTime(0);
@@ -131,6 +133,7 @@ export function QuestionView({
   // Reset explanation when changing questions
   useEffect(() => {
     setExplanation(null);
+    setExplanationImage(null);
     setExplainError(null);
     setIsExplaining(false);
     setKeyConcepts([]);
@@ -154,6 +157,7 @@ export function QuestionView({
     const currentQuestion = questions[currentQuestionIndex];
     if (currentQuestion.explanation) {
       setExplanation(currentQuestion.explanation);
+      setExplanationImage(currentQuestion.explanationImage || null);
       setKeyConcepts(currentQuestion.keyConcepts || []);
       setCommonMistakes(currentQuestion.commonMistakes || []);
     } else {
@@ -184,6 +188,7 @@ export function QuestionView({
 
         // Accept either legacy shape or normalized ok/text shape
         const text = data?.explanation || data?.text || '';
+        const image = data?.explanationImage || ''; // GET IMAGE
 
         const concepts: string[] = Array.isArray(data?.keyConcepts)
           ? data.keyConcepts
@@ -198,6 +203,7 @@ export function QuestionView({
         }
 
         setExplanation(text || null);
+        setExplanationImage(image || null); // SET IMAGE
         setKeyConcepts(concepts);
         setCommonMistakes(mistakes);
 
@@ -206,6 +212,7 @@ export function QuestionView({
           const next = [...prev];
           const q = { ...next[currentQuestionIndex] };
           q.explanation = text || q.explanation;
+          q.explanationImage = image || q.explanationImage; // UPDATE IMAGE
           if (concepts.length) q.keyConcepts = concepts;
           if (mistakes.length) q.commonMistakes = mistakes;
           next[currentQuestionIndex] = q;
@@ -528,6 +535,42 @@ export function QuestionView({
                     </span>
                   )}
                 </div>
+
+                {/* Visual Explanation Section */}
+                {explanation && explanationImage && (
+                  <div className="mt-6 p-4 bg-indigo-500/10 border border-indigo-500/30 rounded-xl animate-in fade-in slide-in-from-bottom-4 duration-500">
+                    <div className="flex items-center gap-3 mb-4">
+                      <div className="w-8 h-8 rounded-lg bg-indigo-500/20 flex items-center justify-center">
+                        <span className="text-indigo-400 text-lg">📊</span>
+                      </div>
+                      <h4 className="text-lg font-semibold text-indigo-100">
+                        Visual Explanation
+                      </h4>
+                    </div>
+
+                    <div className="relative rounded-lg overflow-hidden border border-indigo-500/20">
+                      <img
+                        src={explanationImage}
+                        alt={`Visual diagram for ${selectedSubject} question`}
+                        className="w-full h-auto"
+                        onError={(e) => {
+                          // Fallback if image fails to load
+                          (
+                            e.target as HTMLImageElement
+                          ).src = `https://placehold.co/600x400/0a0a0f/ffffff?text=${encodeURIComponent(
+                            selectedSubject || 'Diagram'
+                          )}`;
+                          console.log('Image failed to load, using fallback');
+                        }}
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 to-transparent p-3">
+                        <p className="text-xs text-indigo-300/80 text-center">
+                          AI-generated diagram to help visualize the concept
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                )}
 
                 {isExplaining ? (
                   <div className="space-y-2">
