@@ -596,7 +596,7 @@ export function QuestionView({
         <div className="p-6 border-t border-white/10 flex justify-between items-center shrink-0">
           <button
             onClick={handleEndSession}
-            className="px-6 py-3 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-full font-semibold transition-colors duration-200"
+            className="px-2 md:px-6 py-3 bg-red-500/20 text-red-400 hover:bg-red-500/30 rounded-full font-semibold transition-colors duration-200"
           >
             End Session
           </button>
@@ -613,7 +613,7 @@ export function QuestionView({
               )}
             >
               <FontAwesomeIcon icon={faArrowLeft} />
-              Previous
+              <span className="hidden md:block">Previous</span>
             </button>
 
             <button
@@ -626,7 +626,11 @@ export function QuestionView({
                   : 'bg-gradient-to-r from-neon-blue to-neon-purple text-white hover:shadow-lg hover:shadow-purple-500/40'
               )}
             >
-              {currentQuestionIndex === totalQuestions - 1 ? 'Finish' : 'Next'}
+              {currentQuestionIndex === totalQuestions - 1 ? (
+                <span className="hidden md:block">Finish</span>
+              ) : (
+                <span className="hidden md:block">Next</span>
+              )}
               <FontAwesomeIcon icon={faArrowRight} />
             </button>
           </div>
