@@ -16,7 +16,7 @@ import {
   faMoneyBillTrendUp,
   faLandmark,
 } from '@fortawesome/free-solid-svg-icons';
-import { QuestionViewPage } from '@/components/features/question-view-page';
+// import { QuestionViewPage } from '@/components/features/question-view-page';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
 
@@ -90,7 +90,7 @@ export default function Practice() {
   const router = useRouter();
 
   const handleSubjectClick = (subjectName: string) => {
-    router.push(`/practice/${encodeURIComponent(subjectName)}`);
+    router.push(`/dashboard/practice/${encodeURIComponent(subjectName)}`);
   };
 
   const handleEndSession = () => {
