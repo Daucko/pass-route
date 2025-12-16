@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -92,6 +92,16 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
     return () => window.removeEventListener('resize', checkMobile);
   }, []);
 
+  // Keep strict track of the latest handleEndSession to avoid stale closures in setTimeout
+  // Keep strict track of the latest handleEndSession to avoid stale closures in setTimeout
+  const handleEndSessionRef = useRef(async () => { }); // Init with no-op to avoid TDZ error
+
+  // Update ref when handleEndSession changes (or on mount/render where it is available)
+  // We will add the effect AFTER handleEndSession is defined, or loop it via a separate effect lower down.
+  // Actually, simpler is to just define the ref here and update it in an effect that has [handleEndSession] dep,
+  // BUT handleEndSession is defined later.
+  // So we REMOVE the effect from here. And add it later.
+
   // Timer
   useEffect(() => {
     let interval: NodeJS.Timeout | undefined;
@@ -101,7 +111,7 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
           setTime((prev) => {
             if (prev >= 7200) { // 2 hours limit (7200 seconds)
               clearInterval(interval);
-              handleEndSession(); // Auto-submit
+              handleEndSessionRef.current(); // Auto-submit using latest state ref
               return prev;
             }
             return prev + 1;
@@ -422,6 +432,11 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
   const handleCloseSummary = () => {
     router.push('/dashboard/practice');
   };
+
+  // Update the ref to the latest handleEndSession
+  useEffect(() => {
+    handleEndSessionRef.current = handleEndSession;
+  }, [handleEndSession]);
 
   const handleViewCorrection = () => {
     setShowSummary(false);

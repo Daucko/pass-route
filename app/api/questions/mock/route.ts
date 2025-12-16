@@ -49,12 +49,17 @@ export async function GET(request: NextRequest) {
                 where,
                 take: take,
                 skip: skip,
+                include: {
+                    options: true,
+                },
             });
 
             return questions;
         };
 
-        let allQuestions: any[] = [];
+        // properly type the array using the return type of the helper function
+        type QuestionWithOptions = Prisma.PromiseReturnType<typeof fetchQuestionsForSubject>[number];
+        let allQuestions: QuestionWithOptions[] = [];
 
         // 1. Fetch English (60)
         // Note: English is compulsory and comes first

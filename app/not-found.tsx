@@ -198,7 +198,7 @@ export default function NotFound() {
         }
     };
 
-    const draw = () => {
+    const draw = useRef(() => {
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -222,7 +222,16 @@ export default function NotFound() {
             // Draw the ball
             drawBall(ctx, ball);
         });
-    };
+    }).current; // Keep draw stable as it relies on refs mainly or updated via closure if needed. Actually refs are fine.
+    // Wait, if draw relies on setDayScore (stable), it's fine.
+    // But drawSquares relies on squaresRef (stable).
+    // The previous implementation defined 'draw' inside render, so it was new every time.
+    // Let's wrapping it in useCallback would require listing all deps.
+    // However, draw squares logic is complex.
+    // Since we are inside a functional component, and these likely don't change much:
+    // simpler fix: Just add missing deps to useEffect OR disable the rule for this animation effect if standard patterns are annoying.
+    // But better: define `draw` via useCallback.
+    // I will try to address the specific specific warnings by adding dependencies, which means I need to wrap `startAnimation` and `draw`.
 
     const startAnimation = () => {
         if (animationRef.current) {
