@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { Prisma } from '@prisma/client';
-import { transformQuestion } from '@/types/question';
+import { transformQuestion, DBQuestion } from '@/types/question';
 
 export async function GET(request: NextRequest) {
     try {
@@ -49,17 +49,12 @@ export async function GET(request: NextRequest) {
                 where,
                 take: take,
                 skip: skip,
-                include: {
-                    options: true,
-                },
             });
 
             return questions;
         };
 
-        // properly type the array using the return type of the helper function
-        type QuestionWithOptions = Prisma.PromiseReturnType<typeof fetchQuestionsForSubject>[number];
-        let allQuestions: QuestionWithOptions[] = [];
+        let allQuestions: DBQuestion[] = [];
 
         // 1. Fetch English (60)
         // Note: English is compulsory and comes first
