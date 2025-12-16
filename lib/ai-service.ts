@@ -103,10 +103,10 @@ QUESTION: ${questionText}
 
 OPTIONS:
 ${options
-  .map(
-    (opt) => `${opt.id}. ${opt.text} ${opt.correct ? '(Correct Answer)' : ''}`
-  )
-  .join('\n')}
+      .map(
+        (opt) => `${opt.id}. ${opt.text} ${opt.correct ? '(Correct Answer)' : ''}`
+      )
+      .join('\n')}
 
 CORRECT ANSWER: ${correctAnswer}
 
@@ -118,7 +118,7 @@ Please provide a detailed explanation that:
 5. Offers tips for solving similar questions
 6. Format with <br/> for line breaks and <b> for important terms
 
-Make it educational but not too technical. Target level: ${userLevel}.
+Make it SHORT and CONCISE. Avoid lengthy paragraphs. Get straight to the point. Target level: ${userLevel}.
 `;
 
   try {

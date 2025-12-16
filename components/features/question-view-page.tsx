@@ -55,14 +55,17 @@ const subjectIcons = {
   Government: faBook,
 };
 
+type Mode = 'practice' | 'mock' | 'review';
+
 interface QuestionViewPageProps {
   subject?: string;
-  mode?: 'practice' | 'mock';
+  mode?: Mode;
   subjects?: string[]; // For mock mode
 }
 
-export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: QuestionViewPageProps) {
+export function QuestionViewPage({ subject, mode: initialMode = 'practice', subjects = [] }: QuestionViewPageProps) {
   const router = useRouter();
+  const [mode, setMode] = useState<Mode>(initialMode);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [selectedOption, setSelectedOption] = useState<string | null>(null);
@@ -160,9 +163,20 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
   }, [currentQuestionIndex]);
 
   const handleOptionSelect = async (optionId: string) => {
-    if (answers[currentQuestionIndex]) return;
+    if (answers[currentQuestionIndex] && mode !== 'review') return;
+    if (mode === 'review') return; // Read-only in review mode
 
     setSelectedOption(optionId);
+
+    // In mock mode, we just record selection, no feedback yet
+    if (mode === 'mock') {
+      setAnswers((prev) => ({
+        ...prev,
+        [currentQuestionIndex]: { selected: optionId, correct: false }, // correct status unknown/irrelevant for display
+      }));
+      return;
+    }
+
     const isCorrect =
       questions[currentQuestionIndex].options.find((opt) => opt.id === optionId)
         ?.correct || false;
@@ -177,6 +191,8 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
     if (currentQuestion.explanation) {
       setExplanation(currentQuestion.explanation);
     } else {
+      // In Mock mode, we don't fetch explanations on select
+
       setIsExplaining(true);
       setExplainError(null);
       try {
@@ -241,15 +257,57 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
           ...prev,
           [currentQuestionIndex]: {
             selected: selectedOption,
-            correct: isCorrect,
+            correct: mode === 'mock' ? false : isCorrect,
           },
         }));
       }
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex((prev) => prev + 1);
-        setSelectedOption(null);
+        // Only reset selectedOption if not in review mode? Actually in review mode we want to see what was selected.
+        // But handleNext is for navigation.
+        if (mode !== 'review') {
+          setSelectedOption(null);
+        } else {
+          // Restore selection for next question
+          const nextAnswer = answers[currentQuestionIndex + 1];
+          setSelectedOption(nextAnswer?.selected || null); // Load if exists
+
+          // Also load explanation if available/needed
+          const nextQ = questions[currentQuestionIndex + 1];
+          if (nextQ.explanation) setExplanation(nextQ.explanation);
+          else setExplanation(null);
+
+          // In Review mode, we might want to auto-fetch explanation if missing?
+          // "The 'View Correction' button should load all the 'Explanations'..."
+          // Doing it on-demand as they navigate is better for perf/rate-limits?
+          // Or maybe trigger a bulk fetch or fetch-on-view. Fetch-on-view is safer.
+          if (mode === 'review' && !nextQ.explanation) {
+            fetchExplanationForReview(nextQ);
+          }
+        }
       }
     }
+  };
+
+  const fetchExplanationForReview = async (question: Question) => {
+    try {
+      const response = await fetch('/api/ai/explain', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          questionId: question.id,
+          questionText: question.text,
+          options: question.options,
+          correctAnswer: question.options.find((o) => o.correct)?.id || 'unknown',
+        }),
+      });
+      const data = await response.json();
+      if (data.explanation) {
+        setExplanation(data.explanation);
+        // Update question in state
+        setQuestions(prev => prev.map(q => q.id === question.id ? { ...q, explanation: data.explanation } : q));
+      }
+    } catch (e) { console.error(e); }
   };
 
   const handlePreviousQuestion = () => {
@@ -261,6 +319,8 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
       const prevQ = questions[currentQuestionIndex - 1];
       if (prevAnswer && prevQ.explanation) {
         setExplanation(prevQ.explanation);
+      } else if (mode === 'review' && !prevQ.explanation) {
+        fetchExplanationForReview(prevQ);
       } else {
         setExplanation(null);
       }
@@ -281,8 +341,20 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
         )?.correct || false;
       finalAnswers[currentQuestionIndex] = {
         selected: selectedOption,
-        correct: isCorrect,
+        correct: isCorrect, // Always calculate real correctness here for submission
       };
+    }
+
+    // Also update all answers with correctness for Mock mode if needed
+    if (mode === 'mock') {
+      Object.keys(finalAnswers).forEach(idx => {
+        const index = parseInt(idx);
+        const ans = finalAnswers[index];
+        const q = questions[index];
+        const isCorrect = q.options.find(o => o.id === ans.selected)?.correct || false;
+        finalAnswers[index] = { ...ans, correct: isCorrect };
+      });
+      setAnswers(finalAnswers); // Update state with correctness
     }
 
     Object.values(finalAnswers).forEach((answer) => {
@@ -295,8 +367,8 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          subject: subject || (mode === 'mock' ? 'Mock Exam' : 'Unknown'),
-          mode: mode,
+          subject: subject || (mode !== 'practice' ? 'Mock Exam' : 'Unknown'),
+          mode: mode === 'mock' ? 'mock' : 'practice',
           questionsCount: Object.keys(finalAnswers).length,
           correctCount: correct,
           incorrectCount: incorrect,
@@ -328,8 +400,19 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
   };
 
   const handleCloseSummary = () => {
-    setShowSummary(false);
     router.push('/dashboard/practice');
+  };
+
+  const handleViewCorrection = () => {
+    setShowSummary(false);
+    setMode('review');
+    setCurrentQuestionIndex(0);
+    // Load first question explanation
+    const q0 = questions[0];
+    const ans0 = answers[0];
+    setSelectedOption(ans0?.selected || null);
+    if (!q0.explanation) fetchExplanationForReview(q0);
+    else setExplanation(q0.explanation);
   };
 
   const formatTime = (seconds: number) => {
@@ -449,11 +532,11 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <button
-              onClick={() => router.push('/practice')}
+              onClick={() => router.push('/dashboard/practice')}
               className="flex items-center gap-2 text-muted-foreground hover:text-white transition-colors"
             >
               <FontAwesomeIcon icon={faArrowLeft} />
-              <span>Back to Practice</span>
+              <span>{mode === 'review' ? 'Exit Review' : 'Back to Practice'}</span>
             </button>
             <div className="h-10 w-10 rounded-xl bg-neon-blue/10 flex items-center justify-center text-neon-blue">
               {subject &&
@@ -469,7 +552,7 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
               </h1>
               <div className="flex items-center gap-2 text-sm text-white/50">
                 <span className="bg-white/5 px-2 py-0.5 rounded text-xs">
-                  {mode === 'mock' ? 'Mock Exam' : 'Practice Mode'}
+                  {mode === 'mock' ? 'Mock Exam' : mode === 'review' ? 'Review Mode' : 'Practice Mode'}
                 </span>
                 <span className="flex items-center gap-1">
                   <FontAwesomeIcon
@@ -598,12 +681,12 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
                               <FontAwesomeIcon icon={faCheck} /> Correct!
                             </span>
                           )}
-                          {isSelected && !isCorrect && (
+                          {mode !== 'mock' && isSelected && !isCorrect && (
                             <span className="text-red-400 font-bold flex items-center gap-2 text-sm">
                               <FontAwesomeIcon icon={faXmark} /> Incorrect
                             </span>
                           )}
-                          {isAnswered && !isSelected && isCorrect && (
+                          {isAnswered && !isSelected && isCorrect && mode !== 'mock' && (
                             <span className="text-neon-green font-bold flex items-center gap-2 text-sm">
                               <FontAwesomeIcon icon={faCheck} /> Correct Answer
                             </span>
@@ -617,7 +700,7 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
             </div>
 
             {/* AI Explanation Section */}
-            {(explanation || isExplaining || explainError) && (
+            {(mode !== 'mock' && (explanation || isExplaining || explainError)) && (
               <div className="mt-6 lg:mt-8 p-4 lg:p-6 bg-blue-500/10 border border-blue-500/30 rounded-xl lg:rounded-2xl">
                 <div className="flex items-center gap-3 mb-3 lg:mb-4">
                   <div className="w-6 h-6 lg:w-8 lg:h-8 rounded-lg bg-blue-500/20 flex items-center justify-center">
@@ -725,6 +808,7 @@ export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: 
           isOpen={showSummary}
           onClose={handleCloseSummary}
           sessionData={sessionResult}
+          onViewCorrection={mode === 'mock' || mode === 'review' ? handleViewCorrection : undefined}
         />
       )}
     </div>

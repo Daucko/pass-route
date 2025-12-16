@@ -20,12 +20,14 @@ interface SessionSummaryProps {
     streakIncremented: boolean;
     streakBonus?: number;
   };
+  onViewCorrection?: () => void;
 }
 
 export function SessionSummary({
   isOpen,
   onClose,
   sessionData,
+  onViewCorrection
 }: SessionSummaryProps) {
   const [showXP, setShowXP] = useState(false);
   const [displayedXP, setDisplayedXP] = useState(0);
@@ -33,8 +35,8 @@ export function SessionSummary({
   const accuracy =
     sessionData.questionsCount > 0
       ? Math.round(
-          (sessionData.correctCount / sessionData.questionsCount) * 100
-        )
+        (sessionData.correctCount / sessionData.questionsCount) * 100
+      )
       : 0;
 
   const formatTime = (seconds: number) => {
@@ -164,12 +166,22 @@ export function SessionSummary({
 
         {/* Footer */}
         <div className="p-6 border-t border-white/10">
-          <button
-            onClick={onClose}
-            className="w-full py-3 bg-gradient-to-r from-neon-blue to-neon-purple text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/40 transition-all duration-300"
-          >
-            Continue Learning
-          </button>
+          <div className="flex gap-4">
+            {onViewCorrection && (
+              <button
+                onClick={onViewCorrection}
+                className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-semibold transition-all duration-300"
+              >
+                View Correction
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="flex-1 py-3 bg-gradient-to-r from-neon-blue to-neon-purple text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-purple-500/40 transition-all duration-300"
+            >
+              Continue Learning
+            </button>
+          </div>
         </div>
       </div>
     </div>
