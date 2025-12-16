@@ -293,6 +293,10 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
   };
 
   const fetchExplanationForReview = async (question: Question) => {
+    setIsExplaining(true);
+    setExplainError(null);
+    setExplanation(null);
+
     try {
       const response = await fetch('/api/ai/explain', {
         method: 'POST',
@@ -304,13 +308,26 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
           correctAnswer: question.options.find((o) => o.correct)?.id || 'unknown',
         }),
       });
+
       const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data?.error || `Explain API failed (${response.status})`);
+      }
+
       if (data.explanation) {
         setExplanation(data.explanation);
         // Update question in state
         setQuestions(prev => prev.map(q => q.id === question.id ? { ...q, explanation: data.explanation } : q));
+      } else {
+        setExplainError('No explanation available.');
       }
-    } catch (e) { console.error(e); }
+    } catch (e) {
+      console.error(e);
+      setExplainError('Failed to load explanation.');
+    } finally {
+      setIsExplaining(false);
+    }
   };
 
   const handlePreviousQuestion = () => {
