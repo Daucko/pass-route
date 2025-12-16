@@ -56,10 +56,12 @@ const subjectIcons = {
 };
 
 interface QuestionViewPageProps {
-  subject: string;
+  subject?: string;
+  mode?: 'practice' | 'mock';
+  subjects?: string[]; // For mock mode
 }
 
-export function QuestionViewPage({ subject }: QuestionViewPageProps) {
+export function QuestionViewPage({ subject, mode = 'practice', subjects = [] }: QuestionViewPageProps) {
   const router = useRouter();
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -92,22 +94,39 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
     let interval: NodeJS.Timeout | undefined;
     if (questions.length > 0) {
       interval = setInterval(() => {
-        setTime((prev) => prev + 1);
+        if (mode === 'mock') {
+          setTime((prev) => {
+            if (prev >= 7200) { // 2 hours limit (7200 seconds)
+              clearInterval(interval);
+              handleEndSession(); // Auto-submit
+              return prev;
+            }
+            return prev + 1;
+          });
+        } else {
+          setTime((prev) => prev + 1);
+        }
       }, 1000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [questions.length]);
+  }, [questions.length, mode]);
 
   // Fetch Questions
   useEffect(() => {
     async function fetchQuestions() {
       setIsLoading(true);
       try {
-        const res = await fetch(
-          `/api/questions?subject=${encodeURIComponent(subject)}&limit=10`
-        );
+        let url = `/api/questions?subject=${encodeURIComponent(subject || '')}&limit=10`;
+
+        if (mode === 'mock') {
+          // subjects includes other 3 subjects. English is auto-included by API if we just pass these 3?
+          // API expects `subjects` param with comma separated list of the 3 subjects.
+          url = `/api/questions/mock?subjects=${encodeURIComponent(subjects.join(','))}`;
+        }
+
+        const res = await fetch(url);
         if (!res.ok)
           throw new Error(`Failed to fetch questions (${res.status})`);
         const data = await res.json();
@@ -131,7 +150,7 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
     }
 
     fetchQuestions();
-  }, [subject]);
+  }, [subject, mode, subjects]);
 
   // Reset explanation when changing questions
   useEffect(() => {
@@ -276,8 +295,8 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          subject: subject || 'Unknown',
-          mode: 'practice',
+          subject: subject || (mode === 'mock' ? 'Mock Exam' : 'Unknown'),
+          mode: mode,
           questionsCount: Object.keys(finalAnswers).length,
           correctCount: correct,
           incorrectCount: incorrect,
@@ -314,6 +333,14 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
   };
 
   const formatTime = (seconds: number) => {
+    if (mode === 'mock') {
+      // Show remaining time
+      const remaining = Math.max(0, 7200 - seconds);
+      const hrs = Math.floor(remaining / 3600);
+      const mins = Math.floor((remaining % 3600) / 60);
+      const secs = remaining % 60;
+      return `${hrs}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins}:${secs.toString().padStart(2, '0')}`;
@@ -442,7 +469,7 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
               </h1>
               <div className="flex items-center gap-2 text-sm text-white/50">
                 <span className="bg-white/5 px-2 py-0.5 rounded text-xs">
-                  Practice Mode
+                  {mode === 'mock' ? 'Mock Exam' : 'Practice Mode'}
                 </span>
                 <span className="flex items-center gap-1">
                   <FontAwesomeIcon
@@ -535,9 +562,9 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
                             : 'bg-red-500/20 border-red-500 text-white'
                           : 'bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:border-white/20',
                         isAnswered &&
-                          !isSelected &&
-                          isCorrect &&
-                          'bg-neon-green/10 border-neon-green'
+                        !isSelected &&
+                        isCorrect &&
+                        'bg-neon-green/10 border-neon-green'
                       )}
                     >
                       <div className="flex items-center justify-between gap-3 sm:gap-4 relative z-10">
@@ -551,9 +578,9 @@ export function QuestionViewPage({ subject }: QuestionViewPageProps) {
                                   : 'border-red-500 bg-red-500 text-white'
                                 : 'border-white/20 text-white/40 group-hover:border-white/40',
                               isAnswered &&
-                                !isSelected &&
-                                isCorrect &&
-                                'border-neon-green bg-neon-green text-white'
+                              !isSelected &&
+                              isCorrect &&
+                              'border-neon-green bg-neon-green text-white'
                             )}
                           >
                             {option.id.toUpperCase()}

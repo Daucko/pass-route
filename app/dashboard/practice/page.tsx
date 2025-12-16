@@ -15,6 +15,7 @@ import {
   faBalanceScale,
   faMoneyBillTrendUp,
   faLandmark,
+  faCheck,
 } from '@fortawesome/free-solid-svg-icons';
 import { useUser } from '@clerk/nextjs';
 import { useRouter } from 'next/navigation';
@@ -82,6 +83,24 @@ export default function Practice() {
   const router = useRouter();
 
   const modes = ['Practice Mode', 'Timed Mode', 'Mock Exam'];
+  const [selectedSubjects, setSelectedSubjects] = useState<string[]>([]);
+
+  const handleSubjectToggle = (subjectName: string) => {
+    if (subjectName === 'English') return; // English is compulsory
+
+    setSelectedSubjects(prev => {
+      if (prev.includes(subjectName)) {
+        return prev.filter(s => s !== subjectName);
+      }
+      if (prev.length >= 3) return prev; // Max 3
+      return [...prev, subjectName];
+    });
+  };
+
+  const handleStartMockExam = () => {
+    if (selectedSubjects.length !== 3) return;
+    router.push(`/dashboard/practice/mock?subjects=${selectedSubjects.join(',')}`);
+  };
 
   const handleSubjectClick = (subjectName: string) => {
     router.push(`/dashboard/practice/${encodeURIComponent(subjectName)}`);
@@ -151,34 +170,118 @@ export default function Practice() {
           ))}
         </div>
 
-        {/* Subjects Grid - Now 3 columns for larger screens */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
-          {subjects.map((subject) => (
-            <div
-              key={subject.name}
-              className="glass-card text-center p-6 lg:p-8 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
-              onClick={() => handleSubjectClick(subject.name)}
-            >
-              <div
+        {/* Mock Exam Setup Panel */}
+        {activeMode === 'Mock Exam' && (
+          <div className="glass-panel p-6 lg:p-8 rounded-2xl border border-white/10 animate-fade-in">
+            <div className="mb-6">
+              <h2 className="text-xl font-bold mb-2">Configure Mock Exam</h2>
+              <p className="text-muted-foreground">
+                English is compulsory. Select 3 additional subjects to start your 2-hour mock exam.
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+              {/* Compulsory English */}
+              <div className="glass-card p-4 rounded-xl border border-neon-blue/30 bg-neon-blue/10 flex items-center gap-4 opacity-80 cursor-not-allowed">
+                <div className="h-10 w-10 rounded-full bg-neon-blue/20 flex items-center justify-center text-neon-blue">
+                  <FontAwesomeIcon icon={faBook} />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-semibold text-white">English</h3>
+                  <p className="text-xs text-neon-blue">Compulsory</p>
+                </div>
+                <div className="w-6 h-6 rounded-full bg-neon-blue flex items-center justify-center text-black text-xs">
+                  <FontAwesomeIcon icon={faCheck} />
+                </div>
+              </div>
+
+              {/* Other Subjects */}
+              {subjects.filter(s => s.name !== 'English').map(subject => {
+                const isSelected = selectedSubjects.includes(subject.name);
+                return (
+                  <button
+                    key={subject.name}
+                    onClick={() => handleSubjectToggle(subject.name)}
+                    className={cn(
+                      "glass-card p-4 rounded-xl border text-left flex items-center gap-4 transition-all duration-200",
+                      isSelected
+                        ? "border-neon-purple bg-neon-purple/10"
+                        : "border-white/5 bg-white/5 hover:bg-white/10"
+                    )}
+                  >
+                    <div className={cn(
+                      "h-10 w-10 rounded-full flex items-center justify-center transition-colors",
+                      isSelected ? "bg-neon-purple/20 text-neon-purple" : "bg-white/10 text-muted-foreground"
+                    )}>
+                      <FontAwesomeIcon icon={subject.icon} />
+                    </div>
+                    <div className="flex-1">
+                      <h3 className={cn("font-semibold", isSelected ? "text-white" : "text-white/70")}>{subject.name}</h3>
+                      <p className="text-xs text-muted-foreground">{subject.topics.split('•')[0]}</p>
+                    </div>
+                    <div className={cn(
+                      "w-6 h-6 rounded-full border flex items-center justify-center transition-colors",
+                      isSelected
+                        ? "bg-neon-purple border-neon-purple text-white"
+                        : "border-white/20 bg-transparent"
+                    )}>
+                      {isSelected && <FontAwesomeIcon icon={faCheck} size="xs" />}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="flex items-center justify-between border-t border-white/10 pt-6">
+              <div className="text-sm text-muted-foreground">
+                Selected: <span className="text-white font-bold">{selectedSubjects.length}/3</span> subjects
+              </div>
+              <button
+                onClick={handleStartMockExam}
+                disabled={selectedSubjects.length !== 3}
                 className={cn(
-                  'text-3xl lg:text-4xl mb-4 lg:mb-6',
-                  subject.color
+                  "px-8 py-3 rounded-full font-semibold transition-all duration-300 flex items-center gap-2",
+                  selectedSubjects.length === 3
+                    ? "bg-gradient-to-r from-neon-blue to-neon-purple text-white shadow-lg shadow-purple-500/20 hover:scale-105"
+                    : "bg-white/5 text-white/30 cursor-not-allowed"
                 )}
               >
-                <FontAwesomeIcon icon={subject.icon} />
-              </div>
-              <h3 className="text-lg lg:text-xl font-semibold mb-2 lg:mb-3">
-                {subject.name}
-              </h3>
-              <p className="text-muted-foreground text-sm lg:text-base mb-4 lg:mb-6">
-                {subject.topics}
-              </p>
-              <button className="cta-button bg-gradient-to-r from-neon-blue to-neon-purple text-white px-6 lg:px-8 py-2 lg:py-3 rounded-full font-semibold shadow-lg shadow-purple-500/40 hover:scale-105 transition-all duration-300 text-sm lg:text-base">
-                Start
+                Start Exam
               </button>
             </div>
-          ))}
-        </div>
+          </div>
+        )}
+
+        {/* Subjects Grid - Now 3 columns for larger screens */}
+        {activeMode === 'Practice Mode' && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 lg:gap-6">
+            {subjects.map((subject) => (
+              <div
+                key={subject.name}
+                className="glass-card text-center p-6 lg:p-8 transition-all duration-300 hover:-translate-y-1 cursor-pointer"
+                onClick={() => handleSubjectClick(subject.name)}
+              >
+                <div
+                  className={cn(
+                    'text-3xl lg:text-4xl mb-4 lg:mb-6',
+                    subject.color
+                  )}
+                >
+                  <FontAwesomeIcon icon={subject.icon} />
+                </div>
+                <h3 className="text-lg lg:text-xl font-semibold mb-2 lg:mb-3">
+                  {subject.name}
+                </h3>
+                <p className="text-muted-foreground text-sm lg:text-base mb-4 lg:mb-6">
+                  {subject.topics}
+                </p>
+                <button className="cta-button bg-gradient-to-r from-neon-blue to-neon-purple text-white px-6 lg:px-8 py-2 lg:py-3 rounded-full font-semibold shadow-lg shadow-purple-500/40 hover:scale-105 transition-all duration-300 text-sm lg:text-base">
+                  Start
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
     </>
   );
