@@ -171,11 +171,45 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
   }, [subject, mode, subjects]);
 
   // Reset explanation when changing questions
+  // Reset explanation when changing questions
   useEffect(() => {
     setExplanation(null);
     setExplainError(null);
     setIsExplaining(false);
-  }, [currentQuestionIndex]);
+
+    // In Review Mode, automatically load explanation for the new question
+    if (mode === 'review' && questions.length > 0) {
+      const currentQ = questions[currentQuestionIndex];
+      // Restore selection
+      const currentAns = answers[currentQuestionIndex];
+      setSelectedOption(currentAns?.selected || null);
+
+      if (currentQ) {
+        if (currentQ.explanation) {
+          setExplanation(currentQ.explanation);
+        } else {
+          // We need to define fetchExplanationForReview here or pull it out. 
+          // Since it uses state setters, we can just call it if it's stable.
+          // Or better, move the fetch logic here inside effect?
+          // But fetchExplanationForReview updates questions state too.
+          // Let's use the function but ensure it's not recreating too often or causing loop.
+          // It's defined below. We will use it.
+          // Using timeout to allow render cycle to clear previous state first? 
+          // No, effect runs after paint. It should be fine.
+          fetchExplanationForReview(currentQ);
+        }
+      }
+    }
+  }, [currentQuestionIndex, mode, questions.length]); // questions dependency is fine as long as length is stable usually. 
+  // Wait, fetchExplanationForReview UPDATES questions. 
+  // If it updates questions, this effect might re-run if we depend on 'questions'.
+  // We should depend on questions[currentQuestionIndex] maybe?
+  // Or just currentQuestionIndex and mode. 'questions' reference changes on every setQuestions.
+  // We need to avoid infinite loop.
+  // If we update questions, the component re-renders. Effect runs if deps change.
+  // If deps don't change, effect doesn't run.
+  // If we only use [currentQuestionIndex, mode], it won't re-run when we update questions with explanation. GOOD.
+
 
   const handleOptionSelect = async (optionId: string) => {
     if (answers[currentQuestionIndex] && mode !== 'review') return;
@@ -280,26 +314,8 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
         setCurrentQuestionIndex((prev) => prev + 1);
         // Only reset selectedOption if not in review mode? Actually in review mode we want to see what was selected.
         // But handleNext is for navigation.
-        if (mode !== 'review') {
-          setSelectedOption(null);
-        } else {
-          // Restore selection for next question
-          const nextAnswer = answers[currentQuestionIndex + 1];
-          setSelectedOption(nextAnswer?.selected || null); // Load if exists
-
-          // Also load explanation if available/needed
-          const nextQ = questions[currentQuestionIndex + 1];
-          if (nextQ.explanation) setExplanation(nextQ.explanation);
-          else setExplanation(null);
-
-          // In Review mode, we might want to auto-fetch explanation if missing?
-          // "The 'View Correction' button should load all the 'Explanations'..."
-          // Doing it on-demand as they navigate is better for perf/rate-limits?
-          // Or maybe trigger a bulk fetch or fetch-on-view. Fetch-on-view is safer.
-          if (mode === 'review' && !nextQ.explanation) {
-            fetchExplanationForReview(nextQ);
-          }
-        }
+        // Restore selection for next question
+        // Handled by useEffect now
       }
     }
   };
@@ -349,13 +365,8 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
       setSelectedOption(prevAnswer?.selected || null);
 
       const prevQ = questions[currentQuestionIndex - 1];
-      if (prevAnswer && prevQ.explanation) {
-        setExplanation(prevQ.explanation);
-      } else if (mode === 'review' && !prevQ.explanation) {
-        fetchExplanationForReview(prevQ);
-      } else {
-        setExplanation(null);
-      }
+    } else {
+      // Hanlded by useEffect
     }
   };
 
@@ -444,12 +455,7 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
     setShowSummary(false);
     setMode('review');
     setCurrentQuestionIndex(0);
-    // Load first question explanation
-    const q0 = questions[0];
-    const ans0 = answers[0];
-    setSelectedOption(ans0?.selected || null);
-    if (!q0.explanation) fetchExplanationForReview(q0);
-    else setExplanation(q0.explanation);
+    // Explanation loading handled by useEffect
   };
 
   const formatTime = (seconds: number) => {
