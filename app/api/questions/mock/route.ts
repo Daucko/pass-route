@@ -32,7 +32,7 @@ export async function GET(request: NextRequest) {
         // Others: 40 questions each
 
         const fetchQuestionsForSubject = async (subject: string, limit: number) => {
-            const where: Prisma.QuestionWhereInput = {
+            const where = {
                 subject: subject.toLowerCase(),
             };
 
