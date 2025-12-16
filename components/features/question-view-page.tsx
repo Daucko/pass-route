@@ -119,6 +119,9 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
   // Fetch Questions
   useEffect(() => {
     async function fetchQuestions() {
+      // Don't re-fetch in review mode - use existing questions
+      if (mode === 'review') return;
+
       setIsLoading(true);
       try {
         let url = `/api/questions?subject=${encodeURIComponent(subject || '')}&limit=10`;
