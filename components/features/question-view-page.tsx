@@ -63,7 +63,9 @@ interface QuestionViewPageProps {
   subjects?: string[]; // For mock mode
 }
 
-export function QuestionViewPage({ subject, mode: initialMode = 'practice', subjects = [] }: QuestionViewPageProps) {
+const EMPTY_SUBJECTS: string[] = [];
+
+export function QuestionViewPage({ subject, mode: initialMode = 'practice', subjects = EMPTY_SUBJECTS }: QuestionViewPageProps) {
   const router = useRouter();
   const [mode, setMode] = useState<Mode>(initialMode);
   const [questions, setQuestions] = useState<Question[]>([]);
@@ -142,9 +144,7 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
           url = `/api/questions/mock?subjects=${encodeURIComponent(subjects.join(','))}`;
         }
 
-        console.log('Fetching questions from:', url);
         const res = await fetch(url);
-        console.log('Response status:', res.status);
         if (!res.ok)
           throw new Error(`Failed to fetch questions (${res.status})`);
         const data = await res.json();
