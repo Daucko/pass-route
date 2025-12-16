@@ -142,7 +142,9 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
           url = `/api/questions/mock?subjects=${encodeURIComponent(subjects.join(','))}`;
         }
 
+        console.log('Fetching questions from:', url);
         const res = await fetch(url);
+        console.log('Response status:', res.status);
         if (!res.ok)
           throw new Error(`Failed to fetch questions (${res.status})`);
         const data = await res.json();
