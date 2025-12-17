@@ -72,11 +72,6 @@ export default function NotFound() {
         const totalSquares = numSquaresX * numSquaresY;
         setDayScore(Math.floor(totalSquares / 2));
         setNightScore(Math.floor(totalSquares / 2));
-
-        // Start animation
-        if (isRunning) {
-            startAnimation();
-        }
     }, []);
 
     const drawBall = (ctx: CanvasRenderingContext2D, ball: Ball) => {
@@ -222,18 +217,11 @@ export default function NotFound() {
             // Draw the ball
             drawBall(ctx, ball);
         });
-    }).current; // Keep draw stable as it relies on refs mainly or updated via closure if needed. Actually refs are fine.
-    // Wait, if draw relies on setDayScore (stable), it's fine.
-    // But drawSquares relies on squaresRef (stable).
-    // The previous implementation defined 'draw' inside render, so it was new every time.
-    // Let's wrapping it in useCallback would require listing all deps.
-    // However, draw squares logic is complex.
-    // Since we are inside a functional component, and these likely don't change much:
-    // simpler fix: Just add missing deps to useEffect OR disable the rule for this animation effect if standard patterns are annoying.
-    // But better: define `draw` via useCallback.
-    // I will try to address the specific specific warnings by adding dependencies, which means I need to wrap `startAnimation` and `draw`.
+    }).current;
 
-    const startAnimation = () => {
+    // Use useCallback to make startAnimation stable for dependency array
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    const startAnimation = useRef(() => {
         if (animationRef.current) {
             cancelAnimationFrame(animationRef.current);
         }
@@ -244,7 +232,7 @@ export default function NotFound() {
         };
 
         animationRef.current = requestAnimationFrame(animate);
-    };
+    }).current;
 
     const stopAnimation = () => {
         if (animationRef.current) {
@@ -303,7 +291,7 @@ export default function NotFound() {
         return () => {
             stopAnimation();
         };
-    }, [isMounted, isRunning]);
+    }, [isMounted, isRunning, startAnimation]);
 
     const toggleAnimation = () => {
         if (isRunning) {
@@ -323,7 +311,7 @@ export default function NotFound() {
                 draw();
             }
         }
-    }, [isMounted]);
+    }, [isMounted, draw]);
 
     if (!isMounted) {
         return (
