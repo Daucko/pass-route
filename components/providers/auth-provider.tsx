@@ -86,9 +86,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             const data = await res.json();
 
             if (res.ok) {
-                // Automatically sign in after register? Or redirect to login?
-                // Let's sign in automatically for better UX
-                return await signIn(email, password);
+                router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+                return {};
             } else {
                 return { error: data.error };
             }

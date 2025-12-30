@@ -11,43 +11,46 @@ datasource db {
 }
 
 model User {
-  id              String    @id @default(cuid())
-  email           String    @unique
-  password        String
-  username        String?
-  
+  id                        String    @id @default(cuid())
+  email                     String    @unique
+  password                  String
+  username                  String?
+  isVerified                Boolean   @default(false)
+  verificationCode          String?
+  verificationCodeExpiresAt DateTime?
+
   // XP & Progress
-  totalXP         Int       @default(0)
-  level           Int       @default(1)
-  currentStreak   Int       @default(0)
-  lastActiveDate  DateTime?
-  
+  totalXP        Int       @default(0)
+  level          Int       @default(1)
+  currentStreak  Int       @default(0)
+  lastActiveDate DateTime?
+
   // Stats
-  questionsAnswered Int     @default(0)
-  correctAnswers    Int     @default(0)
-  
-  sessions        Session[]
-  createdAt       DateTime  @default(now())
-  updatedAt       DateTime  @updatedAt
-  
+  questionsAnswered Int @default(0)
+  correctAnswers    Int @default(0)
+
+  sessions  Session[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
   @@map("users")
 }
 
 model Session {
-  id              String   @id @default(cuid())
-  userId          String
-  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
-  subject         String
-  mode            String   // 'practice', 'timed', 'mock'
-  questionsCount  Int
-  correctCount    Int
-  incorrectCount  Int
-  xpEarned        Int
-  timeSpent       Int      // in seconds
-  
-  createdAt       DateTime @default(now())
-  
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  subject        String
+  mode           String // 'practice', 'timed', 'mock'
+  questionsCount Int
+  correctCount   Int
+  incorrectCount Int
+  xpEarned       Int
+  timeSpent      Int // in seconds
+
+  createdAt DateTime @default(now())
+
   @@index([userId])
   @@map("sessions")
 }
@@ -69,7 +72,7 @@ model Question {
   commonMistakes   String[]  @default([]) @map("common_mistakes")
   lastExplainedAt  DateTime? @map("last_explained_at")
   createdAt        DateTime  @default(now()) @map("created_at")
-  
+
   @@index([subject])
   @@index([examType])
   @@index([year])

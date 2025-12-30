@@ -3,7 +3,7 @@
 
 import React from "react";
 import { motion } from "framer-motion";
-import { Canvas } from "@react-three/fiber";
+import { SafeCanvas } from "@/components/ui/safe-canvas";
 import { OrbitControls, MeshDistortMaterial } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -16,7 +16,7 @@ const HeroSection = () => {
 
             {/* 3D Holographic Card Animation */}
             <div className="absolute w-96 h-56">
-                <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+                <SafeCanvas camera={{ position: [0, 0, 5], fov: 75 }}>
                     <ambientLight intensity={0.5} />
                     <pointLight position={[10, 10, 10]} />
                     <mesh>
@@ -29,7 +29,7 @@ const HeroSection = () => {
                         />
                     </mesh>
                     <OrbitControls enableZoom={false} enablePan={false} />
-                </Canvas>
+                </SafeCanvas>
             </div>
 
             {/* Text Content */}

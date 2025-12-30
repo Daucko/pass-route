@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { hashPassword } from "@/lib/auth";
+import { sendVerificationEmail } from "@/lib/mail";
 
 export async function POST(req: NextRequest) {
     try {
@@ -26,16 +27,26 @@ export async function POST(req: NextRequest) {
 
         const hashedPassword = await hashPassword(password);
 
+        // Generate 6-digit code
+        const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+        const verificationCodeExpiresAt = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
         const user = await prisma.user.create({
             data: {
                 email,
                 password: hashedPassword,
                 username,
+                verificationCode,
+                verificationCodeExpiresAt,
+                isVerified: false,
             },
         });
 
+        // Send email
+        await sendVerificationEmail(email, verificationCode);
+
         return NextResponse.json(
-            { message: "User created successfully", userId: user.id },
+            { message: "Verification code sent to email", userId: user.id },
             { status: 201 }
         );
     } catch (error) {
