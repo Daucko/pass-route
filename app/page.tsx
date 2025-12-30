@@ -12,7 +12,6 @@ import { QuizDemo } from '@/components/features/quiz-demo';
 import { Ticker } from '@/components/features/ticker';
 import { useAuth } from '@/components/providers/auth-provider';
 import Image from 'next/image';
-import HeroSection from '@/components/layout/hero-section';
 
 export default function Home() {
   const { user } = useAuth();

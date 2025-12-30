@@ -1,14 +1,14 @@
 "use client";
 
 import { BackgroundBlobs } from '@/components/layout/background-blobs';
-import React, { useState, useRef, useEffect, Suspense, type KeyboardEvent, type ClipboardEvent, type FormEvent } from 'react';
+import React, { useState, useRef, Suspense, type KeyboardEvent, type ClipboardEvent, type FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/components/providers/auth-provider';
 
 function VerifyEmailContent() {
-    const router = useRouter();
+
     const searchParams = useSearchParams();
     const emailParam = searchParams.get('email');
 
@@ -16,7 +16,7 @@ function VerifyEmailContent() {
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
-    const { signIn } = useAuth(); // We might not need this if API sets cookie, but context sync needed
+
 
     const handleChange = (index: number, value: string) => {
         if (isNaN(Number(value))) return;
