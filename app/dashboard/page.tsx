@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useUser } from '@clerk/nextjs';
+import { useAuth } from '@/components/providers/auth-provider';
 import { DashboardHeader } from '@/components/features/dashboard-header';
 import { StatsGrid } from '@/components/features/stats-grid';
 import { SubjectProgress } from '@/components/features/subject-progress';
@@ -42,7 +42,7 @@ interface UserStats {
 }
 
 export default function Dashboard() {
-  const { user } = useUser();
+  const { user } = useAuth();
   const [stats, setStats] = useState<UserStats | null>(null);
 
   useEffect(() => {
@@ -63,11 +63,11 @@ export default function Dashboard() {
 
   return (
     <>
-      <DashboardHeader userName={user?.firstName || 'Student'} />
+      <DashboardHeader userName={user?.username || 'Student'} />
       {/* Remove DashboardHeader in mobile */}
       <div className="lg:hidden mb-6 lg:mb-10">
         <h1 className="text-2xl lg:text-3xl font-bold mb-2">
-          Good Afternoon, {user?.firstName || 'Student'}! 👋
+          Good Afternoon, {user?.username || 'Student'}! 👋
         </h1>
         <p className="text-muted-foreground">
           Ready to crush some questions today?

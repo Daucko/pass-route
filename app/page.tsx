@@ -10,12 +10,12 @@ import { CountdownTimer } from '@/components/features/countdown-timer';
 import { FeaturesGrid } from '@/components/features/features-grid';
 import { QuizDemo } from '@/components/features/quiz-demo';
 import { Ticker } from '@/components/features/ticker';
-import { useUser } from '@clerk/nextjs';
+import { useAuth } from '@/components/providers/auth-provider';
 import Image from 'next/image';
 import HeroSection from '@/components/layout/hero-section';
 
 export default function Home() {
-  const { isSignedIn } = useUser();
+  const { user } = useAuth();
 
   return (
     <>
@@ -41,10 +41,10 @@ export default function Home() {
             </p>
 
             <Link
-              href={isSignedIn ? '/dashboard' : '/sign-up'}
+              href={user ? '/dashboard' : '/sign-up'}
               className="cta-button bg-gradient-to-r from-neon-blue to-neon-purple text-white px-12 py-4 rounded-full font-semibold text-lg shadow-lg shadow-purple-500/40 hover:scale-105 hover:shadow-purple-500/60 transition-all duration-300 flex items-center gap-3 mx-auto"
             >
-              {isSignedIn ? 'Go to Dashboard' : 'Start Free Practice'}
+              {user ? 'Go to Dashboard' : 'Start Free Practice'}
               <FontAwesomeIcon icon={faArrowRight} />
             </Link>
 

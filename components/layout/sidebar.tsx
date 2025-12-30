@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { UserButton, useUser } from '@clerk/nextjs';
+import { useAuth } from '@/components/providers/auth-provider';
 import { cn } from '@/lib/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -47,13 +47,13 @@ interface UserStats {
 
 export function Sidebar() {
   const pathname = usePathname();
-  const { user, isSignedIn } = useUser();
+  const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userStats, setUserStats] = useState<UserStats | null>(null);
 
   useEffect(() => {
     const fetchUserStats = async () => {
-      if (isSignedIn) {
+      if (user) {
         try {
           const response = await fetch('/api/user/stats');
           if (response.ok) {
@@ -67,7 +67,7 @@ export function Sidebar() {
     };
 
     fetchUserStats();
-  }, [isSignedIn]);
+  }, [user]);
 
   // Close mobile menu when clicking outside
   useEffect(() => {
@@ -268,21 +268,23 @@ export function Sidebar() {
 
           <div className="glass-panel rounded-2xl p-3 lg:p-4 border border-white/10">
             <div className="flex items-center gap-3">
-              <UserButton
-                appearance={{
-                  elements: {
-                    avatarBox: 'w-10 h-10 lg:w-12 lg:h-12',
-                  },
-                }}
-              />
+              <div className="w-10 h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-to-br from-neon-blue to-neon-purple flex items-center justify-center text-white font-bold text-lg">
+                {user?.username?.[0]?.toUpperCase() || user?.email?.[0]?.toUpperCase()}
+              </div>
               <div className="flex flex-col flex-1 min-w-0">
                 <span className="font-semibold text-sm truncate">
-                  {user?.firstName} {user?.lastName}
+                  {user?.username || 'User'}
                 </span>
                 <span className="text-xs text-neon-purple truncate">
-                  {user?.username || user?.emailAddresses?.[0]?.emailAddress}
+                  {user?.email}
                 </span>
               </div>
+              <button
+                onClick={() => signOut()}
+                className="text-muted-foreground hover:text-red-400 transition-colors"
+              >
+                <FontAwesomeIcon icon={faTimes} />
+              </button>
             </div>
           </div>
         </div>

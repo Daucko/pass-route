@@ -1,14 +1,17 @@
 // app/api/sessions/route.ts
 // Save practice session and award XP
 
-import { NextRequest, NextResponse } from 'next/server';
-import { auth } from '@clerk/nextjs/server';
+import { cookies } from 'next/headers';
+import { verifyToken } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { calculateSessionXP, getLevelFromXP, checkStreak } from '@/lib/xp-utils';
 
 export async function POST(request: NextRequest) {
     try {
-        const { userId } = await auth();
+        const cookieStore = await cookies();
+        const token = cookieStore.get('auth-token')?.value;
+        const payload = token ? await verifyToken(token) : null;
+        const userId = payload?.userId as string;
 
         if (!userId) {
             return NextResponse.json(
@@ -30,7 +33,7 @@ export async function POST(request: NextRequest) {
 
         // Get user
         const user = await prisma.user.findUnique({
-            where: { clerkId: userId },
+            where: { id: userId },
         });
 
         if (!user) {

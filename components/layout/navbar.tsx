@@ -3,13 +3,13 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { UserButton, useUser } from '@clerk/nextjs';
+import { useAuth } from '@/components/providers/auth-provider';
 import Image from 'next/image';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
 
 export function Navbar() {
-  const { isSignedIn } = useUser();
+  const { user, signOut } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   return (
@@ -44,16 +44,17 @@ export function Navbar() {
               Pricing
             </span>
 
-            {isSignedIn ? (
+            {user ? (
               <div className="flex items-center gap-4">
-                <UserButton
-                  afterSignOutUrl="/"
-                  appearance={{
-                    elements: {
-                      avatarBox: 'w-8 h-8',
-                    },
-                  }}
-                />
+                <Link href="/dashboard" className="text-white hover:text-neon-blue transition-colors">
+                  Dashboard
+                </Link>
+                <button
+                  onClick={signOut}
+                  className="bg-white/10 px-4 py-2 rounded-full text-white text-sm hover:bg-red-500/20 hover:text-red-400 transition-all"
+                >
+                  Sign Out
+                </button>
               </div>
             ) : (
               <Link
@@ -110,17 +111,20 @@ export function Navbar() {
 
               <div className="border-t border-white/10 my-2"></div>
 
-              {isSignedIn ? (
-                <div className="flex items-center gap-4 py-3 px-4">
-                  <UserButton
-                    afterSignOutUrl="/"
-                    appearance={{
-                      elements: {
-                        avatarBox: 'w-10 h-10',
-                      },
+              {user ? (
+                <div className="flex items-center gap-4 py-3 px-4 flex-col items-start">
+                  <Link href="/dashboard" className="text-white text-lg w-full">
+                    Dashboard
+                  </Link>
+                  <button
+                    onClick={() => {
+                      signOut();
+                      setMobileMenuOpen(false);
                     }}
-                  />
-                  <span className="text-white">Account</span>
+                    className="text-red-400 text-lg w-full text-left"
+                  >
+                    Sign Out
+                  </button>
                 </div>
               ) : (
                 <Link
