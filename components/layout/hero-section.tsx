@@ -3,6 +3,8 @@
 
 import React from "react";
 import { motion } from "framer-motion";
+import { Canvas } from "@react-three/fiber";
+import { OrbitControls, MeshDistortMaterial } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -12,25 +14,23 @@ const HeroSection = () => {
             {/* Background Overlay for Depth */}
             <div className="absolute inset-0 bg-gradient-to-br from-black to-gray-900 opacity-90" />
 
-            {/* Holographic Card Animation */}
-            <motion.div
-                className="absolute w-96 h-56 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg shadow-lg"
-                animate={{
-                    rotateY: [0, 180],
-                    scale: [1, 1.1, 1],
-                }}
-                transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                    repeatType: "reverse",
-                }}
-                style={{
-                    transformStyle: "preserve-3d",
-                }}
-            >
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg opacity-50" />
-                <div className="absolute inset-0 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg backdrop-blur-lg" />
-            </motion.div>
+            {/* 3D Holographic Card Animation */}
+            <div className="absolute w-96 h-56">
+                <Canvas camera={{ position: [0, 0, 5], fov: 75 }}>
+                    <ambientLight intensity={0.5} />
+                    <pointLight position={[10, 10, 10]} />
+                    <mesh>
+                        <boxGeometry args={[3, 2, 0.1]} />
+                        <MeshDistortMaterial
+                            color="#2563eb"
+                            distort={0.4}
+                            speed={2}
+                            roughness={0.5}
+                        />
+                    </mesh>
+                    <OrbitControls enableZoom={false} enablePan={false} />
+                </Canvas>
+            </div>
 
             {/* Text Content */}
             <div className="relative z-10 text-center">
