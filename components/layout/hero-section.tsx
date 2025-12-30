@@ -6,7 +6,6 @@ import { motion } from "framer-motion";
 import { SafeCanvas } from "@/components/ui/safe-canvas";
 import { OrbitControls, MeshDistortMaterial } from "@react-three/drei";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 
 const HeroSection = () => {
     return (

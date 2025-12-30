@@ -2,10 +2,9 @@
 
 import { BackgroundBlobs } from '@/components/layout/background-blobs';
 import React, { useState, useRef, Suspense, type KeyboardEvent, type ClipboardEvent, type FormEvent } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
+import { useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { useAuth } from '@/components/providers/auth-provider';
 
 function VerifyEmailContent() {
 
@@ -87,7 +86,7 @@ function VerifyEmailContent() {
             } else {
                 setError(data.error);
             }
-        } catch (error) {
+        } catch {
             setError("Something went wrong");
         } finally {
             setLoading(false);
@@ -134,7 +133,7 @@ function VerifyEmailContent() {
                         </Button>
 
                         <p className="text-sm text-muted-foreground mt-4">
-                            Didn't receive code? <button type="button" className="text-neon-blue hover:underline" onClick={() => alert("Resend feature to be implemented")}>Resend</button>
+                            Didn&apos;t receive code? <button type="button" className="text-neon-blue hover:underline" onClick={() => alert("Resend feature to be implemented")}>Resend</button>
                         </p>
                     </form>
                 </div >
