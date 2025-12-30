@@ -1,6 +1,6 @@
 import { Sidebar } from '@/components/layout/sidebar';
 import { BackgroundBlobs } from '@/components/layout/background-blobs';
-import { UserSyncProvider } from '@/components/providers/user-sync-provider';
+// import { UserSyncProvider } from '@/components/providers/user-sync-provider';
 
 export default function DashboardLayout({
   children,
@@ -8,7 +8,8 @@ export default function DashboardLayout({
   children: React.ReactNode;
 }) {
   return (
-    <UserSyncProvider>
+    // <UserSyncProvider>
+    <>
       <BackgroundBlobs />
       <div className="flex min-h-screen">
         <Sidebar />
@@ -16,6 +17,7 @@ export default function DashboardLayout({
           {children}
         </main>
       </div>
-    </UserSyncProvider>
+    </>
+    // </UserSyncProvider>
   );
 }
