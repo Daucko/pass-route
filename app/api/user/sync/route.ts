@@ -21,22 +21,22 @@ export async function POST() {
 
     // Check if user exists in database
     let user = await prisma.user.findUnique({
-      where: { clerkId: userId },
+      where: { email: clerkUser.emailAddresses[0]?.emailAddress || '' },
     });
 
     if (!user) {
       // Create new user
       user = await prisma.user.create({
         data: {
-          clerkId: userId,
           email: clerkUser.emailAddresses[0]?.emailAddress || '',
           username: clerkUser.username || clerkUser.firstName || null,
+          password: '',
         },
       });
     } else {
       // Update existing user
       user = await prisma.user.update({
-        where: { clerkId: userId },
+        where: { email: user.email },
         data: {
           email: clerkUser.emailAddresses[0]?.emailAddress || user.email,
           username: clerkUser.username || clerkUser.firstName || user.username,
