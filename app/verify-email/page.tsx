@@ -1,7 +1,7 @@
 "use client";
 
 import { BackgroundBlobs } from '@/components/layout/background-blobs';
-import { useState, useRef, useEffect, Suspense } from 'react';
+import React, { useState, useRef, useEffect, Suspense, type KeyboardEvent, type ClipboardEvent, type FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -31,13 +31,13 @@ function VerifyEmailContent() {
         }
     };
 
-    const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
+    const handleKeyDown = (index: number, e: KeyboardEvent<HTMLInputElement>) => {
         if (e.key === 'Backspace' && !code[index] && index > 0) {
             inputRefs.current[index - 1]?.focus();
         }
     };
 
-    const handlePaste = (e: React.ClipboardEvent) => {
+    const handlePaste = (e: ClipboardEvent<HTMLDivElement>) => {
         e.preventDefault();
         const pastedData = e.clipboardData.getData('text').slice(0, 6);
         if (!/^\d+$/.test(pastedData)) return;
@@ -50,7 +50,7 @@ function VerifyEmailContent() {
         inputRefs.current[Math.min(pastedData.length, 5)]?.focus();
     };
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setLoading(true);
         setError("");
