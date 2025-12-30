@@ -42,7 +42,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             } else {
                 setUser(null);
             }
-        } catch (error) {
+        } catch {
             setUser(null);
         } finally {
             setLoading(false);
@@ -70,7 +70,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             } else {
                 return { error: data.error };
             }
-        } catch (error) {
+        } catch {
             return { error: "Something went wrong" };
         }
     };
@@ -91,7 +91,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
             } else {
                 return { error: data.error };
             }
-        } catch (error) {
+        } catch {
             return { error: "Something went wrong" };
         }
     };

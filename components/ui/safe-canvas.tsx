@@ -10,6 +10,7 @@ const Canvas = dynamic(() => import('@react-three/fiber').then((mod) => mod.Canv
     loading: () => <div className="w-full h-full bg-transparent" />,
 });
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const SafeCanvas = ({ children, ...props }: any) => {
     return (
         <Canvas {...props}>
