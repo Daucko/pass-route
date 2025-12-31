@@ -1,9 +1,12 @@
 'use client';
 
+import { useAuth } from '@/components/providers/auth-provider';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Settings() {
+  const { user } = useAuth();
+
   return (
     <>
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-0 mb-6 lg:mb-10">
@@ -52,7 +55,7 @@ export default function Settings() {
                 Full Name
               </label>
               <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm lg:text-base">
-                {user?.fullName || 'Not set'}
+                {user?.username || 'Not set'}
               </div>
             </div>
 
@@ -61,7 +64,7 @@ export default function Settings() {
                 Email
               </label>
               <div className="bg-white/5 border border-white/10 rounded-xl px-4 py-3 text-white text-sm lg:text-base">
-                {user?.emailAddresses?.[0]?.emailAddress}
+                {user?.email}
               </div>
             </div>
           </div>
