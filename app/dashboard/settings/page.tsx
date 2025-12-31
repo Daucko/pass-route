@@ -1,12 +1,9 @@
 'use client';
 
-import { useUser } from '@clerk/nextjs';
 import Image from 'next/image';
 import Link from 'next/link';
 
 export default function Settings() {
-  const { user } = useUser();
-
   return (
     <>
       <header className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 lg:gap-0 mb-6 lg:mb-10">
@@ -36,7 +33,7 @@ export default function Settings() {
           <div className="space-y-6">
             <div className="text-center">
               <Image
-                src={user?.imageUrl || '/default-profile.png'}
+                src="/default-profile.png"
                 alt="Profile"
                 width={96}
                 height={96}
@@ -83,7 +80,9 @@ export default function Settings() {
             <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="font-medium text-sm lg:text-base">Dark Mode</span>
+                  <span className="font-medium text-sm lg:text-base">
+                    Dark Mode
+                  </span>
                   <p className="text-xs lg:text-sm text-muted-foreground">
                     Toggle application theme
                   </p>
@@ -96,7 +95,9 @@ export default function Settings() {
 
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="font-medium text-sm lg:text-base">Email Notifications</span>
+                  <span className="font-medium text-sm lg:text-base">
+                    Email Notifications
+                  </span>
                   <p className="text-xs lg:text-sm text-muted-foreground">
                     Receive weekly progress reports
                   </p>
@@ -109,7 +110,9 @@ export default function Settings() {
 
               <div className="flex justify-between items-center">
                 <div>
-                  <span className="font-medium text-sm lg:text-base">Sound Effects</span>
+                  <span className="font-medium text-sm lg:text-base">
+                    Sound Effects
+                  </span>
                   <p className="text-xs lg:text-sm text-muted-foreground">
                     Play sounds during practice
                   </p>
