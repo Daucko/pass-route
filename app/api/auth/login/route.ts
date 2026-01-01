@@ -17,9 +17,9 @@ export async function POST(req: NextRequest) {
             where: { email },
         });
 
-        if (!user) {
+        if (!user || !user.password) {
             return NextResponse.json(
-                { error: "Invalid credentials" },
+                { error: user && !user.password ? "This account uses Google login" : "Invalid credentials" },
                 { status: 401 }
             );
         }
