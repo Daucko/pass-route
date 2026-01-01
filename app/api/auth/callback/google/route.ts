@@ -9,11 +9,15 @@ export async function GET(req: NextRequest) {
 
     if (error) {
         console.error("Google OAuth error:", error);
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=${encodeURIComponent(error)}`);
+        const redirectUrl = new URL("/sign-in", req.url);
+        redirectUrl.searchParams.set("error", error);
+        return NextResponse.redirect(redirectUrl);
     }
 
     if (!code) {
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=No+code+provided`);
+        const redirectUrl = new URL("/sign-in", req.url);
+        redirectUrl.searchParams.set("error", "No code provided");
+        return NextResponse.redirect(redirectUrl);
     }
 
     try {
@@ -40,7 +44,9 @@ export async function GET(req: NextRequest) {
 
         if (tokens.error) {
             console.error("Token exchange error:", tokens.error);
-            return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=Token+exchange+failed`);
+            const redirectUrl = new URL("/sign-in", req.url);
+            redirectUrl.searchParams.set("error", "Token exchange failed");
+            return NextResponse.redirect(redirectUrl);
         }
 
         // 2. Get user info
@@ -54,7 +60,9 @@ export async function GET(req: NextRequest) {
 
         if (googleUser.error) {
             console.error("User info error:", googleUser.error);
-            return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=Failed+to+get+user+info`);
+            const redirectUrl = new URL("/sign-in", req.url);
+            redirectUrl.searchParams.set("error", "Failed to get user info");
+            return NextResponse.redirect(redirectUrl);
         }
 
         const { id: googleId, email, name } = googleUser;
@@ -91,7 +99,8 @@ export async function GET(req: NextRequest) {
         const token = await signToken({ userId: user.id, email: user.email });
 
         // 5. Redirect with cookie
-        const response = NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/dashboard`);
+        const dashboardUrl = new URL("/dashboard", req.url);
+        const response = NextResponse.redirect(dashboardUrl);
 
         response.cookies.set("auth-token", token, {
             httpOnly: true,
@@ -104,6 +113,8 @@ export async function GET(req: NextRequest) {
         return response;
     } catch (err) {
         console.error("Callback catch error:", err);
-        return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=Internal+server+error`);
+        const redirectUrl = new URL("/sign-in", req.url);
+        redirectUrl.searchParams.set("error", "Internal server error");
+        return NextResponse.redirect(redirectUrl);
     }
 }
