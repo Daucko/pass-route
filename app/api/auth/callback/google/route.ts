@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
             return NextResponse.redirect(`${process.env.NEXT_PUBLIC_APP_URL}/sign-in?error=Failed+to+get+user+info`);
         }
 
-        const { id: googleId, email, name, picture } = googleUser;
+        const { id: googleId, email, name } = googleUser;
 
         // 3. Find or create user
         let user = await prisma.user.findFirst({
