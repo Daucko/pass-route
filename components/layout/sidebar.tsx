@@ -16,6 +16,7 @@ import {
   faTrophy,
   faGear,
   faHome,
+  faArrowRightFromBracket,
 } from '@fortawesome/free-solid-svg-icons';
 import { LevelBadge } from '@/components/features/level-badge';
 import { XPProgressBar } from '@/components/features/xp-progress-bar';
@@ -279,14 +280,18 @@ export function Sidebar() {
                   {user?.email}
                 </span>
               </div>
-              <button
-                onClick={() => signOut()}
-                className="text-muted-foreground hover:text-red-400 transition-colors"
-              >
-                <FontAwesomeIcon icon={faTimes} />
-              </button>
             </div>
           </div>
+          <button
+            onClick={() => signOut()}
+            className="w-full mt-4 flex items-center justify-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 bg-red-500/10 hover:bg-red-500/20 border border-red-500/20 rounded-xl transition-all duration-300 text-sm font-medium group"
+          >
+            <FontAwesomeIcon
+              icon={faArrowRightFromBracket}
+              className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300"
+            />
+            <span>Logout</span>
+          </button>
         </div>
       </aside>
     </>
