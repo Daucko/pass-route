@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
+import { useAuth } from '@/components/providers/auth-provider';
 import { cn } from '@/lib/utils';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
@@ -67,6 +68,7 @@ const EMPTY_SUBJECTS: string[] = [];
 
 export function QuestionViewPage({ subject, mode: initialMode = 'practice', subjects = EMPTY_SUBJECTS }: QuestionViewPageProps) {
   const router = useRouter();
+  const { refreshUser } = useAuth();
   const [mode, setMode] = useState<Mode>(initialMode);
   const [questions, setQuestions] = useState<Question[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
@@ -446,6 +448,8 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
           streakBonus: data.streakBonus,
         });
         setShowSummary(true);
+        // Refresh user data to sync XP in sidebar
+        refreshUser();
       } else {
         console.error('Failed to save session', data);
       }
