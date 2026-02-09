@@ -294,6 +294,9 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
           const next = [...prev];
           const q = { ...next[currentQuestionIndex] };
           q.explanation = text || q.explanation;
+          q.explanationImage = data.explanationImage || q.explanationImage;
+          q.keyConcepts = data.keyConcepts || q.keyConcepts;
+          q.commonMistakes = data.commonMistakes || q.commonMistakes;
           next[currentQuestionIndex] = q;
           return next;
         });
@@ -361,7 +364,13 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
       if (data.explanation) {
         setExplanation(data.explanation);
         // Update question in state
-        setQuestions(prev => prev.map(q => q.id === question.id ? { ...q, explanation: data.explanation } : q));
+        setQuestions(prev => prev.map(q => q.id === question.id ? {
+          ...q,
+          explanation: data.explanation,
+          explanationImage: data.explanationImage,
+          keyConcepts: data.keyConcepts,
+          commonMistakes: data.commonMistakes
+        } : q));
       } else {
         setExplainError('No explanation available.');
       }
@@ -795,6 +804,32 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
                       __html: explanation ? sanitize(explanation) : '',
                     }}
                   />
+                )}
+
+                {/* AI Explanation Image */}
+                {!isExplaining && currentQuestion?.explanationImage && (
+                  <div className="mt-4 rounded-lg overflow-hidden border border-blue-500/20">
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      src={currentQuestion.explanationImage}
+                      alt="Explanation Diagram"
+                      className="w-full h-auto object-cover"
+                    />
+                  </div>
+                )}
+
+                {/* Key Concepts */}
+                {!isExplaining && currentQuestion?.keyConcepts && currentQuestion.keyConcepts.length > 0 && (
+                  <div className="mt-4 pt-4 border-t border-blue-500/20">
+                    <h5 className="text-xs font-bold text-blue-300 uppercase tracking-wider mb-2">Key Concepts</h5>
+                    <div className="flex flex-wrap gap-2">
+                      {currentQuestion.keyConcepts.map((concept, idx) => (
+                        <span key={idx} className="px-2 py-1 bg-blue-500/20 text-blue-100 text-xs rounded border border-blue-500/20">
+                          {concept}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 )}
               </div>
             )}
