@@ -88,46 +88,52 @@ async function seedSubject(subject: string) {
     for (const examType of EXAM_TYPES) {
         console.log(`  Fetching ${examType} questions...`);
 
-        const questions = await fetchQuestions(subject, 40, undefined, examType);
+        // Fetch multiple batches to get more questions
+        for (let i = 0; i < 5; i++) {
+            console.log(`    Batch ${i + 1}/5...`);
+            const questions = await fetchQuestions(subject, 50, undefined, examType);
 
-        for (const q of questions) {
-            try {
-                // Check if question already exists (by checking similar text)
-                const existing = await prisma.question.findFirst({
-                    where: {
-                        questionText: q.question,
-                        subject: subject,
-                    },
-                });
+            if (questions.length === 0) break;
 
-                if (existing) {
-                    totalSkipped++;
-                    continue;
+            for (const q of questions) {
+                try {
+                    // Check if question already exists (by checking similar text)
+                    const existing = await prisma.question.findFirst({
+                        where: {
+                            questionText: q.question,
+                            subject: subject,
+                        },
+                    });
+
+                    if (existing) {
+                        totalSkipped++;
+                        continue;
+                    }
+
+                    // Insert question
+                    await prisma.question.create({
+                        data: {
+                            subject: subject,
+                            questionText: q.question,
+                            optionA: q.option.a,
+                            optionB: q.option.b,
+                            optionC: q.option.c,
+                            optionD: q.option.d,
+                            correctOption: q.answer.toLowerCase(),
+                            year: q.year || null,
+                            examType: q.examtype || examType,
+                        },
+                    });
+
+                    totalAdded++;
+                } catch (error) {
+                    console.error(`  Error adding question:`, error);
                 }
-
-                // Insert question
-                await prisma.question.create({
-                    data: {
-                        subject: subject,
-                        questionText: q.question,
-                        optionA: q.option.a,
-                        optionB: q.option.b,
-                        optionC: q.option.c,
-                        optionD: q.option.d,
-                        correctOption: q.answer.toLowerCase(),
-                        year: q.year || null,
-                        examType: q.examtype || examType,
-                    },
-                });
-
-                totalAdded++;
-            } catch (error) {
-                console.error(`  Error adding question:`, error);
             }
-        }
 
-        // Wait a bit between requests to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 1000));
+            // Wait a bit between requests to avoid rate limiting
+            await new Promise(resolve => setTimeout(resolve, 1000));
+        }
     }
 
     console.log(`  ✅ Added ${totalAdded} questions, skipped ${totalSkipped} duplicates`);
@@ -144,6 +150,11 @@ async function main() {
     }
 
     console.log(`Using API token: ${API_TOKEN.substring(0, 10)}...`);
+
+    // Clear existing questions
+    console.log('🧹 Clearing existing questions from database...');
+    await prisma.question.deleteMany({});
+    console.log('✅ Database cleared.\n');
 
     let grandTotalAdded = 0;
     let grandTotalSkipped = 0;
