@@ -330,10 +330,8 @@ export function QuestionViewPage({ subject, mode: initialMode = 'practice', subj
       }
       if (currentQuestionIndex < questions.length - 1) {
         setCurrentQuestionIndex((prev) => prev + 1);
-        // Only reset selectedOption if not in review mode? Actually in review mode we want to see what was selected.
-        // But handleNext is for navigation.
-        // Restore selection for next question
-        // Handled by useEffect now
+        const nextAnswer = answers[currentQuestionIndex + 1];
+        setSelectedOption(nextAnswer?.selected || null);
       }
     }
   };
