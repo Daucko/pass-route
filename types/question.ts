@@ -36,6 +36,21 @@ export interface DBQuestion {
 
 // Transform database question to frontend format
 export function transformQuestion(dbQuestion: DBQuestion): Question {
+  // Validate that all required fields have content
+  if (!dbQuestion.questionText?.trim()) {
+    throw new Error(`Question ${dbQuestion.id} has empty question text`);
+  }
+
+  const options = [
+    dbQuestion.optionA,
+    dbQuestion.optionB,
+    dbQuestion.optionC,
+    dbQuestion.optionD,
+  ];
+  if (options.some((opt) => !opt?.trim())) {
+    throw new Error(`Question ${dbQuestion.id} has empty option text`);
+  }
+
   return {
     id: dbQuestion.id,
     subject: dbQuestion.subject,
