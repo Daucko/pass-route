@@ -70,7 +70,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       const data = await res.json();
 
       if (res.ok) {
-        await fetchUser();
+        if (data.user) {
+          setUser(data.user);
+        } else {
+          await fetchUser();
+        }
         router.push('/dashboard');
         return {};
       } else {
