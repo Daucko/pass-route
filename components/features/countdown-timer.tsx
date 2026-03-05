@@ -11,8 +11,8 @@ export function CountdownTimer() {
   });
 
   useEffect(() => {
-    const targetDate = new Date();
-    targetDate.setHours(targetDate.getHours() + 24);
+    // countdown to April 16 (year remains current). adjust time zone as needed
+    const targetDate = new Date('2026-04-16T00:00:00');
 
     const updateTimer = () => {
       const now = new Date();
@@ -23,7 +23,7 @@ export function CountdownTimer() {
       }
 
       const hours = Math.floor(
-        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
