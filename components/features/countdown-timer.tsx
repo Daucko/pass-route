@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react';
 
 export function CountdownTimer() {
   const [timeLeft, setTimeLeft] = useState({
+    days: 0,
     hours: 0,
     minutes: 0,
     seconds: 0,
@@ -22,13 +23,14 @@ export function CountdownTimer() {
         targetDate.setHours(targetDate.getHours() + 24);
       }
 
+      const days = Math.floor(diff / (1000 * 60 * 60 * 24));
       const hours = Math.floor(
         (diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60),
       );
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
 
-      setTimeLeft({ hours, minutes, seconds });
+      setTimeLeft({ days, hours, minutes, seconds });
     };
 
     const interval = setInterval(updateTimer, 1000);
@@ -42,10 +44,23 @@ export function CountdownTimer() {
       <div className="text-xs uppercase tracking-widest text-neon-blue mb-1 drop-shadow-[0_0_10px_rgba(0,240,255,0.5)]">
         JAMB Starts In:
       </div>
-      <div className="font-mono text-4xl font-bold text-white drop-shadow-[0_0_20px_rgba(0,240,255,0.3)]">
-        {String(timeLeft.hours).padStart(2, '0')}:
-        {String(timeLeft.minutes).padStart(2, '0')}:
-        {String(timeLeft.seconds).padStart(2, '0')}
+      <div className="font-mono text-4xl font-bold text-white drop-shadow-[0_0_20px_rgba(0,240,255,0.3)] flex gap-4">
+        <div className="flex flex-col items-center">
+          <span>{String(timeLeft.days).padStart(2, '0')}</span>
+          <span className="text-xs uppercase mt-1">Days</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span>{String(timeLeft.hours).padStart(2, '0')}</span>
+          <span className="text-xs uppercase mt-1">Hours</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span>{String(timeLeft.minutes).padStart(2, '0')}</span>
+          <span className="text-xs uppercase mt-1">Minutes</span>
+        </div>
+        <div className="flex flex-col items-center">
+          <span>{String(timeLeft.seconds).padStart(2, '0')}</span>
+          <span className="text-xs uppercase mt-1">Seconds</span>
+        </div>
       </div>
     </div>
   );
